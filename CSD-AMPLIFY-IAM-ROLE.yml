@@ -1,0 +1,42 @@
+Parameters:
+  Env:
+    Description: Environment Suffix
+    Type: String
+    Default: dev
+Resources:
+  ec2roles:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      RoleName: 
+        Fn::Join:
+        - "-"
+        - - CSD-AMPLIFY-ROLE
+          - Ref: Env      
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - amplify.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CSD-AMPLIFY-POLICY
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:*
+                  - apigateway:*
+                  - s3:*
+                  - cloudformation:*
+                  - cloudwatch:*
+                  - logs:*
+                Resource: '*'
+Outputs:
+  CSDAMPLIFYRole:
+    Description: Role Name
+    Value: 
+      Ref: ec2roles                                 

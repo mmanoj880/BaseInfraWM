@@ -1,0 +1,267 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  DefReadCap:
+    Description: Read Capacity Units
+    Type: String
+    Default: '3'
+  DefWriteCap:
+    Description: Write Capacity Units
+    Type: String
+    Default: '3'
+  Env:
+    Description: Environment Suffix
+    Type: String
+    Default: def
+  ParamStackName:
+    Type: String
+Resources:
+  EsbCustomerCommLookup:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: customerId
+        AttributeType: S
+      - AttributeName: expireBy
+        AttributeType: N
+      - AttributeName: orderId
+        AttributeType: S
+      - AttributeName: state
+        AttributeType: S
+      KeySchema:
+      - AttributeName: orderId
+        KeyType: HASH
+      - AttributeName: state
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: DefReadCap
+        WriteCapacityUnits:
+          Ref: DefWriteCap
+      TableName:
+        Fn::Join:
+        - "-"
+        - - esb-customer-comm-lookup
+          - Ref: Env
+      GlobalSecondaryIndexes:
+      - IndexName: sequence
+        KeySchema:
+        - AttributeName: orderId
+          KeyType: HASH
+        - AttributeName: customerId
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits:
+            Ref: DefReadCap
+          WriteCapacityUnits:
+            Ref: DefWriteCap
+      - IndexName: expireBy
+        KeySchema:
+        - AttributeName: expireBy
+          KeyType: HASH
+        Projection:
+          ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits:
+            Ref: DefReadCap
+          WriteCapacityUnits:
+            Ref: DefWriteCap
+  CsdVehicle:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: site_id
+        AttributeType: S
+      - AttributeName: vehicle_id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: site_id
+        KeyType: HASH
+      - AttributeName: vehicle_id
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: DefReadCap
+        WriteCapacityUnits:
+          Ref: DefWriteCap
+      TableName:
+        Fn::Join:
+        - "-"
+        - - csd-vehicle
+          - Ref: Env
+  CsdSite:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: site_id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: site_id
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: DefReadCap
+        WriteCapacityUnits:
+          Ref: DefWriteCap
+      TableName:
+        Fn::Join:
+        - "-"
+        - - csd-site
+          - Ref: Env
+  CsdRoute:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: route_id
+        AttributeType: S
+      - AttributeName: site_id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: site_id
+        KeyType: HASH
+      - AttributeName: route_id
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: DefReadCap
+        WriteCapacityUnits:
+          Ref: DefWriteCap
+      TableName:
+        Fn::Join:
+        - "-"
+        - - csd-route
+          - Ref: Env
+  CsdLob:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: lob_id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: lob_id
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: DefReadCap
+        WriteCapacityUnits:
+          Ref: DefWriteCap
+      TableName:
+        Fn::Join:
+        - "-"
+        - - csd-lob
+          - Ref: Env
+  CsdEmployee:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: user_id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: user_id
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: DefReadCap
+        WriteCapacityUnits:
+          Ref: DefWriteCap
+      TableName:
+        Fn::Join:
+        - "-"
+        - - csd-employee
+          - Ref: Env
+  CsdDriver:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+      - AttributeName: driver_id
+        AttributeType: S
+      - AttributeName: site_id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: site_id
+        KeyType: HASH
+      - AttributeName: driver_id
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: DefReadCap
+        WriteCapacityUnits:
+          Ref: DefWriteCap
+      TableName:
+        Fn::Join:
+        - "-"
+        - - csd-driver
+          - Ref: Env
+Outputs:
+  CsdDriverTableName:
+    Description: Table name
+    Value:
+      Ref: CsdDriver
+    Export:
+      Name: 
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-CsdDriver"
+          - Ref: Env
+  EsbCustomerCommLookupTableName:
+    Description: Table name
+    Value:
+      Ref: EsbCustomerCommLookup
+    Export:
+      Name: 
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-EsbCustomerCommLookup"
+          - Ref: Env
+  CsdVehicleTableName:
+    Description: Table name
+    Value:
+      Ref: CsdVehicle
+    Export:
+      Name: 
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-CsdVehicle"
+          - Ref: Env
+  CsdSiteTableName:
+    Description: Table name
+    Value:
+      Ref: CsdSite
+    Export:
+      Name: 
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-CsdSite"
+          - Ref: Env
+  CsdRouteTableName:
+    Description: Table name
+    Value:
+      Ref: CsdRoute
+    Export:
+      Name: 
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-CsdRoute"
+          - Ref: Env      
+  CsdLobTableName:
+    Description: Table name
+    Value:
+      Ref: CsdLob
+    Export:
+      Name: 
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-CsdLob"
+          - Ref: Env
+  CsdEmployeeTableName:
+    Description: Table name
+    Value:
+      Ref: CsdEmployee
+    Export:
+      Name: 
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-CsdEmployee"
+          - Ref: Env

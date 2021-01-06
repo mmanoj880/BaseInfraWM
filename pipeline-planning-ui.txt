@@ -1,0 +1,54 @@
+pipeline {
+     agent {
+  label 'Wine'
+}
+    stages {
+        stage('Print Env Details') {
+            steps {
+               sh 'which node'
+               sh 'node -v'
+               sh 'which npm'
+               sh 'npm -v'
+            }
+        }
+        stage ('Generate Version'){
+            steps {
+             script {
+                 def now = new Date()
+                 time = now.format("yyyy-MM-dd-HH:mm", TimeZone.getTimeZone('UTC'))
+             }
+             }
+            }
+        stage('Switch to Target Branch') {
+            steps {
+                echo "Switching to branch: Developemnt"
+                sh 'git pull https://github.wm.com/operations/ocs-planning-ui.git development'
+            }
+        }
+        stage('Install depenedencies') {
+            steps {
+            echo "NPM Install dependencies"
+            sh 'npm install'
+            }
+        }
+        stage('Prepare distribution content') {
+            steps {
+             echo "Prepare distribution content"
+              sh 'rm -rf ocs-planning-ui-win32-x64'
+              sh 'rm -rf *.zip'
+              sh 'npm run build:electron'
+            }
+        }
+        stage('Zip Distribution content') {
+            steps {
+             echo "Zip Distribution content"
+             sh "zip -r '${time}'-ocs-planning-ui-win32-x64.zip ocs-planning-ui-win32-x64"
+            }
+        }
+        stage('Push content to S3 Bucket') {
+            steps {
+             echo "Push the content to S3 Bucket"
+             sh 'aws s3 cp . s3://csd-planning-ui-build --recursive --exclude "*" --include "*.zip"'
+            }
+        }
+    }}

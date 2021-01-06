@@ -1,0 +1,90 @@
+[
+  {
+    "ParameterKey": "DefReadCap",
+    "ParameterValue": "1"
+  },
+  {
+    "ParameterKey": "DefWriteCap",
+    "ParameterValue": "1"
+  },
+  {
+    "ParameterKey": "Env",
+    "ParameterValue": "Dev"
+  },
+  {
+    "ParameterKey": "ProjectName",
+    "ParameterValue": "Testing"
+  },
+  {
+    "ParameterKey": "EnvironmentName",
+    "ParameterValue": "Development"
+  },
+  {
+    "ParameterKey": "CIDR",
+    "ParameterValue": "10.160.160.0/20"
+  },
+  {
+    "ParameterKey": "ServerlessCidrBlock1",
+    "ParameterValue": "10.160.160.0/23"
+  },
+  {
+    "ParameterKey": "ServerlessSubnet1AZ1",
+    "ParameterValue": "ap-south-1a"
+  },
+  {
+    "ParameterKey": "ServerlessCidrBlock2",
+    "ParameterValue": "10.160.162.0/23"
+  },
+  {
+    "ParameterKey": "ServerlessSubnet2AZ1",
+    "ParameterValue": "ap-south-1b"
+  },
+  {
+    "ParameterKey": "ContainerCidrBlock1",
+    "ParameterValue": "10.160.164.0/23"
+  },
+  {
+    "ParameterKey": "ContainerSubnet1AZ1",
+    "ParameterValue": "ap-south-1a"
+  },
+  {
+    "ParameterKey": "ContainerCidrBlock2",
+    "ParameterValue": "10.160.166.0/23"
+  },
+  {
+    "ParameterKey": "ContainerSubnet2AZ2",
+    "ParameterValue": "ap-south-1b"
+  },
+  {
+    "ParameterKey": "WanCidrBlock1",
+    "ParameterValue": "10.160.168.0/23"
+  },
+  {
+    "ParameterKey": "WanSubnet1AZ1",
+    "ParameterValue": "ap-south-1a"
+  },
+  {
+    "ParameterKey": "WanCidrBlock2",
+    "ParameterValue": "10.160.170.0/23"
+  },
+  {
+    "ParameterKey": "WanSubnet2AZ2",
+    "ParameterValue": "ap-south-1b"
+  },
+  {
+    "ParameterKey": "DbCidrBlock1",
+    "ParameterValue": "10.160.172.0/23"
+  },
+  {
+    "ParameterKey": "DbSubnet1AZ1",
+    "ParameterValue": "ap-south-1a"
+  },
+  {
+    "ParameterKey": "DbCidrBlock2",
+    "ParameterValue": "10.160.174.0/23"
+  },
+  {
+    "ParameterKey": "DbSubnet2AZ2",
+    "ParameterValue": "ap-south-1b"
+  }
+]  

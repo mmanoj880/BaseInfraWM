@@ -1,0 +1,440 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ' Lambda roles with Dynamo DB'
+
+Parameters:
+  DefReadCap:
+    Description: Read Capacity Units
+    Type: String
+    Default: '3'
+  DefWriteCap:
+    Description: Write Capacity Units
+    Type: String
+    Default: '3'
+  Env:
+    Description: Environment Suffix
+    Type: String
+    Default: def
+  ProjectName:
+    Description: Enter the Project name
+    Type: String
+  EnvironmentName:
+    Description: The Name of Environment
+    Type: String
+    AllowedValues:
+    - Development
+    - Staging
+    - Production
+  CIDR:
+    Description: The IP address range that you'll use for your VPC
+    Default: 10.160.160.0/20
+    Type: String
+  ServerlessCidrBlock1:
+    Description: The IP address range for Serverless Subnet 1
+    Type: String
+    Default: 10.160.160.0/23
+  ServerlessSubnet1AZ1:
+    Description: The AZ1 for Serverless Subnet 1
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2a
+  ServerlessCidrBlock2:
+    Description: The IP address range for Serverless Subnet 2
+    Type: String
+    Default: 10.160.162.0/23
+  ServerlessSubnet2AZ1:
+    Description: The AZ2 for Serverless Subnet 2
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2b
+  ContainerCidrBlock1:
+    Description: The IP address range for Container Subnet 1
+    Type: String
+    Default: 10.160.164.0/23
+  ContainerSubnet1AZ1:
+    Description: The AZ1 for Public Subnet 2
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2a
+  ContainerCidrBlock2:
+    Description: The IP address range for Container Subnet 2
+    Type: String
+    Default: 10.160.166.0/23
+  ContainerSubnet2AZ2:
+    Description: The AZ2 for Container Subnet 2
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2b
+  WanCidrBlock1:
+    Description: The IP address range for PUBLIC Subnet 1
+    Type: String
+    Default: 10.160.168.0/23
+  WanSubnet1AZ1:
+    Description: The AZ1 for PUBLIC Subnet 1
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2a
+  WanCidrBlock2:
+    Description: The IP address range for PUBLIC Subnet 2
+    Type: String
+    Default: 10.160.170.0/23
+  WanSubnet2AZ2:
+    Description: The AZ2 for PUBLIC Subnet 2
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2b
+  DbCidrBlock1:
+    Description: The IP address range for Db Subnet 1
+    Type: String
+    Default: 10.160.172.0/23
+  DbSubnet1AZ1:
+    Description: The AZ1 Db Subnet 1
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2a
+  DbCidrBlock2:
+    Description: The IP address range for Db Subnet 2
+    Type: String
+    Default: 10.160.174.0/23
+  DbSubnet2AZ2:
+    Description: The AZ2 Db Subnet 2
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2b
+
+Resources:
+  NETWORKSTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        ProjectName: !Ref ProjectName
+        EnvironmentName: !Ref EnvironmentName
+        CIDR: !Ref CIDR
+        ServerlessCidrBlock1: !Ref ServerlessCidrBlock1
+        ServerlessSubnet1AZ1: !Ref ServerlessSubnet1AZ1
+        ServerlessCidrBlock2: !Ref ServerlessCidrBlock2
+        ServerlessSubnet2AZ1: !Ref ServerlessSubnet2AZ1
+        ContainerCidrBlock1: !Ref ContainerCidrBlock1
+        ContainerSubnet1AZ1: !Ref ContainerSubnet1AZ1
+        ContainerCidrBlock2: !Ref ContainerCidrBlock2
+        ContainerSubnet2AZ2: !Ref ContainerSubnet2AZ2
+        WanCidrBlock1: !Ref WanCidrBlock1
+        WanSubnet1AZ1: !Ref WanSubnet1AZ1
+        WanCidrBlock2: !Ref WanCidrBlock2
+        WanSubnet2AZ2: !Ref WanSubnet2AZ2
+        DbCidrBlock1: !Ref DbCidrBlock1
+        DbSubnet1AZ1: !Ref DbSubnet1AZ1
+        DbCidrBlock2: !Ref DbCidrBlock2
+        DbSubnet2AZ2: !Ref DbSubnet2AZ2
+        Env: !Ref Env
+      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/Network.yaml
+      TimeoutInMinutes: '15'
+
+  DYNAMODBSTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        DefReadCap: !Ref DefReadCap
+        DefWriteCap: !Ref DefWriteCap
+        Env: !Ref Env
+        ParamStackName: !Ref AWS::StackName
+      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/wm-esb-customer-comm-lookup-qa.yaml
+      TimeoutInMinutes: '5'
+  LAMBDAROLESTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Env: !Ref Env
+        ParamStackName: !Ref AWS::StackName
+      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/Lambda-IAM-ROLE-TEST.yml
+      TimeoutInMinutes: '5'
+  APIGWROLESTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Env: !Ref Env
+      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/apigw-IAM-ROLE.yml
+      TimeoutInMinutes: '10'
+  APPSYNCROLESTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Env: !Ref Env
+      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/appsync-IAM-ROLE.yml
+      TimeoutInMinutes: '10'
+  CSDAMPLIFYROLESTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Env: !Ref Env
+      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/CSD-AMPLIFY-IAM-ROLE.yml
+      TimeoutInMinutes: '10'
+  ECSROLESTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Env: !Ref Env
+      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/ecs-IAM-ROLE.yml
+      TimeoutInMinutes: '10'
+  KINESISFIREHOUSEROLESTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Env: !Ref Env
+      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/Kinesis-firehose-IAM-ROLE.yml
+      TimeoutInMinutes: '10'            
+Outputs:
+  CsdDriverTableName:
+    Value: !GetAtt 'DYNAMODBSTACK.Outputs.CsdDriverTableName'
+    Description: Table Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-CsdDriver"
+          - Ref: Env
+  EsbCustomerCommLookupTableName:
+    Value: !GetAtt 'DYNAMODBSTACK.Outputs.EsbCustomerCommLookupTableName'
+    Description: Table Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-EsbCustomerCommLookup"
+          - Ref: Env
+  CsdVehicleTableName:
+    Value: !GetAtt 'DYNAMODBSTACK.Outputs.CsdVehicleTableName'
+    Description: Table Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-CsdVehicle"
+          - Ref: Env
+  CsdSiteTableName:
+    Value: !GetAtt 'DYNAMODBSTACK.Outputs.CsdSiteTableName'
+    Description: Table Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-CsdSite"
+          - Ref: Env
+  CsdRouteTableName:
+    Value: !GetAtt 'DYNAMODBSTACK.Outputs.CsdRouteTableName'
+    Description: Table Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-CsdRoute"
+          - Ref: Env
+  CsdLobTableName:
+    Value: !GetAtt 'DYNAMODBSTACK.Outputs.CsdLobTableName'
+    Description: Table Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-CsdLob"
+          - Ref: Env
+  CsdEmployeeTableName:
+    Value: !GetAtt 'DYNAMODBSTACK.Outputs.CsdEmployeeTableName'
+    Description: Table Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-CsdEmployee"
+          - Ref: Env
+  LambdaRoleName:
+    Value: !GetAtt 'LAMBDAROLESTACK.Outputs.LambdaRoleName'
+    Description: Role Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-LambdaRole"
+          - Ref: Env
+  APIGWRole:
+    Value: !GetAtt 'APIGWROLESTACK.Outputs.APIGWRole'
+    Description: Role Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-APIGWRole"
+          - Ref: Env
+  APPSYNCRole:
+    Value: !GetAtt 'APPSYNCROLESTACK.Outputs.APPSYNCRole'
+    Description: Role Name
+    Export: 
+      Name: 
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-AppSyncRole"
+          - Ref: Env
+  CSDAMPLIFYRole:
+    Value: !GetAtt 'CSDAMPLIFYROLESTACK.Outputs.CSDAMPLIFYRole'
+    Description: Role Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-CsdAmplifyRole"
+          - Ref: Env
+  ECSIAMRole:
+    Value: !GetAtt 'ECSROLESTACK.Outputs.ECSIAMRole'
+    Description: Role Name
+    Export:
+      Name:
+       Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-ECSRole"
+          - Ref: Env
+  KINESISFIREHOUSEIAMRole:
+    Value: !GetAtt 'KINESISFIREHOUSEROLESTACK.Outputs.KINESISFIREHOUSEIAMRole'
+    Description: Role Name
+    Export:
+      Name:
+       Fn::Join:
+        - "-"
+        - - !Sub "${AWS::StackName}-KinesisfirehouseRole"
+          - Ref: Env
+  VPCId:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.VPCId'
+    Description: VPCId of the newly created VPC
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-VPCId"
+            - Ref: Env
+  SecurityGroup1:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.SecurityGroup1'
+    Description: SecurityGroup for Serverless subnet
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-ServerlessServerSecuritygroup"
+            - Ref: Env   
+  SecurityGroup2:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.SecurityGroup2'
+    Description: SecurityGroup for CONTAINER Subnet
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-ContainerServerSecuritygroup"
+            - Ref: Env
+  SecurityGroup3:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.SecurityGroup3'
+    Description: SecurityGroup for PUBLIC subnet
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-WanServerSecurityGroup"
+            - Ref: Env                      
+  SecurityGroup4:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.SecurityGroup4'
+    Description: SecurityGroup for Db subnet
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-DbServerSecurityGroup"
+            - Ref: Env 
+  SecurityGroup5:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.SecurityGroup5'
+    Description: InternalSSHSecurityGroup
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-InternalSSHSecurityGroup"
+            - Ref: Env  
+  ServerlessSubnet1Id:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.ServerlessSubnet1Id'
+    Description: SubnetId of the Serverless subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-ServerlessSubnet1ID"
+            - Ref: Env   
+  ServerlessSubnet2Id:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.ServerlessSubnet2Id'
+    Description: SubnetId of the Serverless subnet2
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-ServerlessSubnet2ID"
+            - Ref: Env    
+  ContainerSubnet1Id:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.ContainerSubnet1Id'
+    Description: SubnetId of the CONTAINER subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-CONTAINERSubnet1ID"
+            - Ref: Env 
+  ContainerSubnet2Id:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.ContainerSubnet2Id'
+    Description: SubnetId of the CONTAINER subnet2
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-CONTAINERSubnet2ID"
+            - Ref: Env   
+  WanSubnet1Id:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.WanSubnet1Id'
+    Description: SubnetId of the PUBLIC subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-WanSubnet1Id"
+            - Ref: Env    
+  WanSubnet2Id:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.WanSubnet2Id'
+    Description: SubnetId of the PUBLIC subnet2
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-WanSubnet2Id"
+            - Ref: Env  
+  DbSubnet1Id:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.DbSubnet1Id'
+    Description: SubnetId of the DB subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-DbSubnet1Id"
+            - Ref: Env  
+  DbSubnet2Id:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.DbSubnet2Id'
+    Description: SubnetId of the DB subnet2
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-DbSubnet2Id"
+            - Ref: Env 
+  NATGW1ID:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.NATGW1ID'
+    Description: NatGateway id of PUBLIC subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-NATGW1ID"
+            - Ref: Env 
+  NATGW2ID:
+    Value: !GetAtt 'NETWORKSTACK.Outputs.NATGW2ID'
+    Description: NatGateway id of PUBLIC subnet2
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "${AWS::StackName}-NATGW2ID"
+            - Ref: Env                           
+                                                                                      

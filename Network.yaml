@@ -1,0 +1,780 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'This Template will create VPC, Subnet and resources needed for VPC  '
+Parameters:
+  Env:
+    Description: Environment Suffix
+    Type: String
+  ProjectName:
+    Description: Enter the Project name
+    Type: String
+  EnvironmentName:
+    Description: The Name of Environment
+    Type: String
+    AllowedValues:
+    - Development
+    - Staging
+    - Production
+  CIDR:
+    Description: The IP address range that you'll use for your VPC
+    Default: 10.160.160.0/20
+    Type: String
+  ServerlessCidrBlock1:
+    Description: The IP address range for Serverless Subnet 1
+    Type: String
+    Default: 10.160.160.0/23
+  ServerlessSubnet1AZ1:
+    Description: The AZ1 for Serverless Subnet 1
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2a
+  ServerlessCidrBlock2:
+    Description: The IP address range for Serverless Subnet 2
+    Type: String
+    Default: 10.160.162.0/23
+  ServerlessSubnet2AZ1:
+    Description: The AZ2 for Serverless Subnet 2
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2b
+  ContainerCidrBlock1:
+    Description: The IP address range for Container Subnet 1
+    Type: String
+    Default: 10.160.164.0/23
+  ContainerSubnet1AZ1:
+    Description: The AZ1 for Public Subnet 2
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2a
+  ContainerCidrBlock2:
+    Description: The IP address range for Container Subnet 2
+    Type: String
+    Default: 10.160.166.0/23
+  ContainerSubnet2AZ2:
+    Description: The AZ2 for Container Subnet 2
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2b
+  WanCidrBlock1:
+    Description: The IP address range for PUBLIC Subnet 1
+    Type: String
+    Default: 10.160.168.0/23
+  WanSubnet1AZ1:
+    Description: The AZ1 for PUBLIC Subnet 1
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2a
+  WanCidrBlock2:
+    Description: The IP address range for PUBLIC Subnet 2
+    Type: String
+    Default: 10.160.170.0/23
+  WanSubnet2AZ2:
+    Description: The AZ2 for PUBLIC Subnet 2
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2b
+  DbCidrBlock1:
+    Description: The IP address range for Db Subnet 1
+    Type: String
+    Default: 10.160.172.0/23
+  DbSubnet1AZ1:
+    Description: The AZ1 Db Subnet 1
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2a
+  DbCidrBlock2:
+    Description: The IP address range for Db Subnet 2
+    Type: String
+    Default: 10.160.174.0/23
+  DbSubnet2AZ2:
+    Description: The AZ2 Db Subnet 2
+    Type: AWS::EC2::AvailabilityZone::Name
+    Default: us-east-2b
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock:
+        Ref: CIDR
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      InstanceTenancy: default
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Owner
+        Value: OCS
+      - Key: Application
+        Value: opsTool-POC
+      - Key: Name
+        Value: CSD-POC-VPC
+  ServerlessSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock:
+        Ref: ServerlessCidrBlock1
+      MapPublicIpOnLaunch: 'true'
+      AvailabilityZone:
+        Ref: ServerlessSubnet1AZ1
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Name
+        Value: CSD-POC-SERVERLESS-SUBNET-1A
+  ServerlessSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock:
+        Ref: ServerlessCidrBlock2
+      MapPublicIpOnLaunch: 'true'
+      AvailabilityZone:
+        Ref: ServerlessSubnet2AZ1
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Name
+        Value: CSD-POC-SERVERLESS-SUBNET-1B
+  WanSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock:
+        Ref: WanCidrBlock1
+      MapPublicIpOnLaunch: 'true'
+      AvailabilityZone:
+        Ref: WanSubnet1AZ1
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Name
+        Value: CSD-POC-PUBLIC-SUBNET-1A
+  WanSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock:
+        Ref: WanCidrBlock2
+      MapPublicIpOnLaunch: 'true'
+      AvailabilityZone:
+        Ref: WanSubnet2AZ2
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Name
+        Value: CSD-POC-PUBLIC-SUBNET-1B
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Name
+        Value: CSD-POC-IGW
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId:
+        Ref: VPC
+      InternetGatewayId:
+        Ref: InternetGateway
+  EIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+      - Key: Name
+        Value: CSD-POC-NATGW-IP
+  EIP2:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+  NATSubnet1:
+    DependsOn: AttachGateway
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+        - EIP
+        - AllocationId
+      SubnetId:
+        Ref: ServerlessSubnet1
+      Tags:
+      - Key: Name
+        Value: CSD-POC-NATGW-1A
+  ServerlessRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Name
+        Value: CSD-POC-SERVERLESS-RT
+  ServerlessRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId:
+        Ref: ServerlessRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: InternetGateway
+  WanRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Name
+        Value: CSD-POC-PUBLIC-RT
+  WanRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId:
+        Ref: WanRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: NATSubnet1
+  ServerlessSubnetRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: ServerlessSubnet1
+      RouteTableId:
+        Ref: ServerlessRouteTable
+  ServerlessSubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: ServerlessSubnet2
+      RouteTableId:
+        Ref: ServerlessRouteTable
+  WanSubnetRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: WanSubnet1
+      RouteTableId:
+        Ref: WanRouteTable
+  WanSubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: WanSubnet2
+      RouteTableId:
+        Ref: WanRouteTable
+  PublicNetworkAcl:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Name
+        Value: CSD-POC-Public-ACL
+  ServerlessSubnetNetworkAclAssociation1:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+        Ref: ServerlessSubnet1
+      NetworkAclId:
+        Ref: PublicNetworkAcl
+  ServerlessSubnetNetworkAclAssociation2:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+        Ref: ServerlessSubnet2
+      NetworkAclId:
+        Ref: PublicNetworkAcl
+  WanSubnetNetworkAclAssociation1:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+        Ref: WanSubnet1
+      NetworkAclId:
+        Ref: PublicNetworkAcl
+  WanSubnetNetworkAclAssociation2:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+        Ref: WanSubnet2
+      NetworkAclId:
+        Ref: PublicNetworkAcl
+  ContainerSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock:
+        Ref: ContainerCidrBlock1
+      MapPublicIpOnLaunch: 'false'
+      AvailabilityZone:
+        Ref: ContainerSubnet1AZ1
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Name
+        Value: CSD-POC-CONTAINER-SUBNET-1A
+  ContainerSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock:
+        Ref: ContainerCidrBlock2
+      MapPublicIpOnLaunch: 'false'
+      AvailabilityZone:
+        Ref: ContainerSubnet2AZ2
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Name
+        Value: CSD-POC-CONTAINER-SUBNET-1B
+  DbSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock:
+        Ref: DbCidrBlock1
+      AvailabilityZone:
+        Ref: DbSubnet1AZ1
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Name
+        Value: CSD-POC-DB-SUBNET-1A
+  DbSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId:
+        Ref: VPC
+      CidrBlock:
+        Ref: DbCidrBlock2
+      AvailabilityZone:
+        Ref: DbSubnet2AZ2
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Name
+        Value: CSD-POC-DB-SUBNET-1A
+  ContainerPrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Network
+        Value: Private
+      - Key: Name
+        Value: CSD-POC-CONTAINER-RT-1A
+  ContainerPrivateRouteTable1:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Network
+        Value: Private
+      - Key: Name
+        Value: CSD-POC-CONTAINER-RT-1B
+  DbPrivateRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Network
+        Value: Private
+      - Key: Name
+        Value: CSD-POC-DB-RT
+  ContainerSubnetRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: ContainerSubnet1
+      RouteTableId:
+        Ref: ContainerPrivateRouteTable
+  ContainerSubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: ContainerSubnet2
+      RouteTableId:
+        Ref: ContainerPrivateRouteTable1
+  DbSubnetRouteTableAssociation1:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: DbSubnet1
+      RouteTableId:
+        Ref: DbPrivateRouteTable
+  DbSubnetRouteTableAssociation2:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: DbSubnet2
+      RouteTableId:
+        Ref: DbPrivateRouteTable
+  NATSubnet1RouteTableAssociation:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: ContainerPrivateRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: NATSubnet1
+  NATSubnet2RouteTableAssociation:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId:
+        Ref: ContainerPrivateRouteTable1
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: NATSubnet1
+  PrivateNetworkAcl:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Project
+        Value:
+          Ref: ProjectName
+      - Key: Environment
+        Value:
+          Ref: EnvironmentName
+      - Key: Name
+        Value: CSD-POC-Private-ACL
+  ContainerSubnetNetworkAclAssociation1:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+        Ref: ContainerSubnet1
+      NetworkAclId:
+        Ref: PrivateNetworkAcl
+  ContainerSubnetNetworkAclAssociation2:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+        Ref: ContainerSubnet2
+      NetworkAclId:
+        Ref: PrivateNetworkAcl
+  DbSubnetNetworkAclAssociation1:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+        Ref: DbSubnet1
+      NetworkAclId:
+        Ref: PrivateNetworkAcl
+  DbSubnetNetworkAclAssociation2:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      SubnetId:
+        Ref: DbSubnet2
+      NetworkAclId:
+        Ref: PrivateNetworkAcl
+  NetworkAclEntry1:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: 0.0.0.0/0
+      Egress: 'true'
+      Protocol: "-1"
+      RuleAction: allow
+      RuleNumber: '100'
+      NetworkAclId:
+        Ref: PublicNetworkAcl
+  NetworkAclEntry2:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: 0.0.0.0/0
+      Protocol: "-1"
+      RuleAction: allow
+      RuleNumber: '100'
+      NetworkAclId:
+        Ref: PublicNetworkAcl
+  NetworkAclEntry3:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: 0.0.0.0/0
+      Egress: 'true'
+      Protocol: "-1"
+      RuleAction: allow
+      RuleNumber: '100'
+      NetworkAclId:
+        Ref: PrivateNetworkAcl
+  NetworkAclEntry4:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: 0.0.0.0/0
+      Protocol: "-1"
+      RuleAction: allow
+      RuleNumber: '100'
+      NetworkAclId:
+        Ref: PrivateNetworkAcl
+  ServerlessServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: CSD-POC-SERVERLESS-SG
+      GroupDescription: Enable HTTP ingress
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: CSD-POC-SERVERLESS-SG
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '80'
+        ToPort: '80'
+        CidrIp: 0.0.0.0/0
+  ContainerServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: CSD-POC-CONTAINER-SG
+      GroupDescription: Enable HTTP ingress
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: CSD-POC-CONTAINER-SG
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '80'
+        ToPort: '80'
+        CidrIp: 0.0.0.0/0
+  WanServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: CSD-POC-PUBLIC-SG
+      GroupDescription: Enable HTTP ingress
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: CSD-POC-PUBLIC-SG
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIpv6: "::/0"
+  DbServerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: CSD-POC-DB-SG
+      GroupDescription: Enable HTTP ingress
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: CSD-POC-DB-SG
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '80'
+        ToPort: '80'
+        CidrIp: 0.0.0.0/0
+  InternalSSHSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: CSD-POC-SSH-SG
+      GroupDescription: Enable HTTP ingress
+      VpcId:
+        Ref: VPC
+      Tags:
+      - Key: Name
+        Value: CSD-POC-SSH-SG
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: '22'
+        ToPort: '22'
+        CidrIp: 0.0.0.0/0
+Outputs:
+  VPCId:
+    Description: VPCId of the newly created VPC
+    Value:
+      Ref: VPC
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-VPCId"
+  SecurityGroup1:
+    Description: SecurityGroup for Serverless subnet
+    Value:
+      Ref: ServerlessServerSecurityGroup
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-ServerlessServerSecurityGroup"
+  SecurityGroup2:
+    Description: SecurityGroup for CONTAINER Subnet
+    Value:
+      Ref: ContainerServerSecurityGroup
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-ContainerServerSecurityGroup"
+  SecurityGroup3:
+    Description: SecurityGroup for PUBLIC subnet
+    Value:
+      Ref: WanServerSecurityGroup
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-WanServerSecurityGroup"
+  SecurityGroup4:
+    Description: SecurityGroup for Db subnet
+    Value:
+      Ref: DbServerSecurityGroup
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-DbServerSecurityGroup"
+  SecurityGroup5:
+    Description: VPCId of the newly created VPC
+    Value:
+      Ref: InternalSSHSecurityGroup
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-InternalSSHSecurityGroup"
+  ServerlessSubnet1Id:
+    Description: SubnetId of the Serverless subnet1
+    Value:
+      Ref: ServerlessSubnet1
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-ServerlessSubnet1ID"
+  ServerlessSubnet2Id:
+    Description: SubnetId of the Serverless subnet2
+    Value:
+      Ref: ServerlessSubnet2
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-ServerlessSubnet2ID"
+  ContainerSubnet1Id:
+    Description: SubnetId of the CONTAINER subnet1
+    Value:
+      Ref: ContainerSubnet1
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-ContainerSubnet1ID"
+  ContainerSubnet2Id:
+    Description: SubnetId of the CONTAINER subnet2
+    Value:
+      Ref: ContainerSubnet2
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-ContainerSubnet2ID"
+  WanSubnet1Id:
+    Description: SubnetId of the PUBLIC subnet1
+    Value:
+      Ref: WanSubnet1
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-WanSubnet1ID"
+  WanSubnet2Id:
+    Description: SubnetId of the PUBLIC subnet2
+    Value:
+      Ref: WanSubnet2
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-WanSubnet2ID"
+  DbSubnet1Id:
+    Description: SubnetId of the Db subnet1
+    Value:
+      Ref: DbSubnet1
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-DbSubnet1ID"
+  DbSubnet2Id:
+    Description: SubnetId of the Db subnet2
+    Value:
+      Ref: DbSubnet2
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-DbSubnet2ID"
+  NATGW1ID:
+    Description: NatGateway id of PUBLIC subnet1
+    Value:
+      Ref: NATSubnet1
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-NATGW1ID"
+  NATGW2ID:
+    Description: NatGateway id of PUBLIC subnet1
+    Value:
+      Ref: NATSubnet1
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-NATGW2ID"
