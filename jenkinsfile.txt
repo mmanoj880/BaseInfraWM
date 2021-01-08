@@ -1,0 +1,64 @@
+ properties([
+  parameters([
+    choice(name: 'DEPLOY_ENV', choices: ['testing','qa','dev','prod','qat'], description: 'The target environment' ),
+	choice(name: 'BRANCH', choices: ['development','master'], description: 'The target Branch' )
+   ])
+])
+pipeline {
+    agent {
+  label 'cdk'
+}
+    stages {
+	    stage ('Git Checkout') {
+            steps {
+                script {
+				  checkout scm
+				}
+				}}
+		stage ('Switch to target branch') {
+		    steps {
+                echo "Switching to branch: ${BRANCH}"
+                sh 'git checkout ${BRANCH}'
+                sh 'git pull'
+            }	}
+        stage ('Execute deployment in Account') {
+            steps {
+                script {
+                    echo "Which Environment"
+                    echo "${DEPLOY_ENV}"
+                    if (params.DEPLOY_ENV == 'testing') {
+                        echo 'I  execute in testing'
+                        sh 'aws s3 cp s3://csd-ocs-cicd-store/dynamodb-input/input-${DEPLOY_ENV}.json /home/ec2-user/workspace/CSD-OCS-INFRA-DYNAMODB/Base-Infra/Dynamodb'
+                      //  sh 'aws cloudformation create-stack --stack-name BaseConfStack${DEPLOY_ENV} --template-body file:///home/ec2-user/workspace/CSD-OCS-INFRA-DYNAMODB/Base-Infra/Dynamodb/wm-esb-customer-comm-lookup-qa.json --parameters file:///home/ec2-user/workspace/CSD-OCS-INFRA-DYNAMODB/Base-Infra/Dynamodb/input-${DEPLOY_ENV}.json'
+                        sh 'ls -ltr'
+                    } else if (params.DEPLOY_ENV == 'qa') {
+                        echo 'I execute in qa'
+                    } else if (params.DEPLOY_ENV == 'dev') {
+                        echo 'I execute in dev'
+                    } else if (params.DEPLOY_ENV == 'prod' ) {
+                        echo 'I execute in prod'
+                    } else {
+                        echo 'Invalid environment'
+                        currentBuild.result = 'FAILURE'
+                        return
+                        
+                    }   
+            }
+                    }
+                }
+            }
+post {
+    always {
+       emailext to: 'sprabhu2@wm.com',
+          from: 'sprabhu2@wm.com',
+          subject: "Status of pipeline: ${currentBuild.fullDisplayName}: ${currentBuild.result}",
+         body:
+                """<p>EXECUTED: Job <b>\'${currentBuild.result} ${env.JOB_NAME}:${env.BUILD_NUMBER}\'
+                </b></p><p>View console output at "<a href="${env.BUILD_URL}"> 
+                ${env.JOB_NAME}:${env.BUILD_NUMBER}</a>"</p> 
+                <p><i>(Build log is attached.)</i></p>""", 
+          compressLog: 'true',
+          attachLog: 'true'
+    }
+  }
+			}
