@@ -16,7 +16,7 @@ Resources:
       IAMRoleARN: arn:aws:iam::108970575545:role/CSD-DAX-ROLE
       Description: DAX cluster created with CloudFormation
       SecurityGroupIds:
-      - sg-0412c8a0a3893e1d6
+      - sg-01376111b68499114
       SubnetGroupName:
         Ref: subnetGroupClu
   subnetGroupClu:
@@ -25,8 +25,8 @@ Resources:
       SubnetGroupName: daxSubnetGroup
       Description: Subnet group for DAX cluster
       SubnetIds:
-      - subnet-4fa9f771
-      - subnet-7d5e541a
+      - subnet-1dac8775
+      - subnet-5dd37126
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
