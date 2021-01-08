@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: '2010-09-09'
-Description: ' Lambda roles with Dynamo DB'
+Description: 'Base Infrastructure'
 
 Parameters:
   DefReadCap:
@@ -95,7 +95,7 @@ Parameters:
     Default: us-east-2b
 
 Resources:
-  NETWORKSTACK:
+  CSDNETWORKSTACK:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
@@ -119,10 +119,22 @@ Resources:
         DbCidrBlock2: !Ref DbCidrBlock2
         DbSubnet2AZ2: !Ref DbSubnet2AZ2
         Env: !Ref Env
-      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/Network.yaml
+      Tags:
+        - Key: "Name"
+          Value: "Testing"  
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/Network.yaml
       TimeoutInMinutes: '15'
-
-  DYNAMODBSTACK:
+  CSDDAXSTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Env: !Ref Env
+      Tags:
+        - Key: "Name"
+          Value: "Testing"
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/dax.yaml
+      TimeoutInMinutes: '10'
+  CSDDYNAMODBSTACK:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
@@ -130,141 +142,162 @@ Resources:
         DefWriteCap: !Ref DefWriteCap
         Env: !Ref Env
         ParamStackName: !Ref AWS::StackName
-      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/wm-esb-customer-comm-lookup-qa.yaml
+      Tags:
+        - Key: "Name"
+          Value: "Testing"        
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/wm-esb-customer-comm-lookup-qa.yaml
       TimeoutInMinutes: '5'
-  LAMBDAROLESTACK:
+  CSDLAMBDAROLESTACK:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
         Env: !Ref Env
         ParamStackName: !Ref AWS::StackName
-      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/Lambda-IAM-ROLE-TEST.yml
+      Tags:
+        - Key: "Name"
+          Value: "Testing"      
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/Lambda-IAM-ROLE-TEST.yml
       TimeoutInMinutes: '5'
-  APIGWROLESTACK:
+  CSDAPIGWROLESTACK:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
         Env: !Ref Env
-      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/apigw-IAM-ROLE.yml
+      Tags:
+        - Key: "Name"
+          Value: "Testing"      
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/apigw-IAM-ROLE.yml
       TimeoutInMinutes: '10'
-  APPSYNCROLESTACK:
+  CSDAPPSYNCROLESTACK:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
         Env: !Ref Env
-      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/appsync-IAM-ROLE.yml
+      Tags:
+        - Key: "Name"
+          Value: "Testing"
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/appsync-IAM-ROLE.yml
       TimeoutInMinutes: '10'
   CSDAMPLIFYROLESTACK:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
         Env: !Ref Env
-      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/CSD-AMPLIFY-IAM-ROLE.yml
+      Tags:
+        - Key: "Name"
+          Value: "Testing"        
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/CSD-AMPLIFY-IAM-ROLE.yml
       TimeoutInMinutes: '10'
-  ECSROLESTACK:
+  CSDECSROLESTACK:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
         Env: !Ref Env
-      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/ecs-IAM-ROLE.yml
+      Tags:
+        - Key: "Name"
+          Value: "Testing"        
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/ecs-IAM-ROLE.yml
       TimeoutInMinutes: '10'
-  KINESISFIREHOUSEROLESTACK:
+  CSDKINESISFIREHOUSEROLESTACK:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
         Env: !Ref Env
-      TemplateURL: https://manoj-cfn.s3.ap-south-1.amazonaws.com/Kinesis-firehose-IAM-ROLE.yml
+      Tags:
+        - Key: "Name"
+          Value: "Testing"        
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/Kinesis-firehose-IAM-ROLE.yml
       TimeoutInMinutes: '10'            
 Outputs:
   CsdDriverTableName:
-    Value: !GetAtt 'DYNAMODBSTACK.Outputs.CsdDriverTableName'
+    Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdDriverTableName'
     Description: Table Name
     Export:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "${AWS::StackName}-CsdDriver"
+        - - !Sub "CSD-${AWS::StackName}-CsdDriver"
           - Ref: Env
   EsbCustomerCommLookupTableName:
-    Value: !GetAtt 'DYNAMODBSTACK.Outputs.EsbCustomerCommLookupTableName'
+    Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.EsbCustomerCommLookupTableName'
     Description: Table Name
     Export:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "${AWS::StackName}-EsbCustomerCommLookup"
+        - - !Sub "CSD-${AWS::StackName}-EsbCustomerCommLookup"
           - Ref: Env
   CsdVehicleTableName:
-    Value: !GetAtt 'DYNAMODBSTACK.Outputs.CsdVehicleTableName'
+    Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdVehicleTableName'
     Description: Table Name
     Export:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "${AWS::StackName}-CsdVehicle"
+        - - !Sub "CSD-${AWS::StackName}-CsdVehicle"
           - Ref: Env
   CsdSiteTableName:
-    Value: !GetAtt 'DYNAMODBSTACK.Outputs.CsdSiteTableName'
+    Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdSiteTableName'
     Description: Table Name
     Export:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "${AWS::StackName}-CsdSite"
+        - - !Sub "CSD-${AWS::StackName}-CsdSite"
           - Ref: Env
   CsdRouteTableName:
-    Value: !GetAtt 'DYNAMODBSTACK.Outputs.CsdRouteTableName'
+    Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdRouteTableName'
     Description: Table Name
     Export:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "${AWS::StackName}-CsdRoute"
+        - - !Sub "CSD-${AWS::StackName}-CsdRoute"
           - Ref: Env
   CsdLobTableName:
-    Value: !GetAtt 'DYNAMODBSTACK.Outputs.CsdLobTableName'
+    Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdLobTableName'
     Description: Table Name
     Export:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "${AWS::StackName}-CsdLob"
+        - - !Sub "CSD-${AWS::StackName}-CsdLob"
           - Ref: Env
   CsdEmployeeTableName:
-    Value: !GetAtt 'DYNAMODBSTACK.Outputs.CsdEmployeeTableName'
+    Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdEmployeeTableName'
     Description: Table Name
     Export:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "${AWS::StackName}-CsdEmployee"
+        - - !Sub "CSD-${AWS::StackName}-CsdEmployee"
           - Ref: Env
   LambdaRoleName:
-    Value: !GetAtt 'LAMBDAROLESTACK.Outputs.LambdaRoleName'
+    Value: !GetAtt 'CSDLAMBDAROLESTACK.Outputs.LambdaRoleName'
     Description: Role Name
     Export:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "${AWS::StackName}-LambdaRole"
+        - - !Sub "CSD-${AWS::StackName}-LambdaRole"
           - Ref: Env
   APIGWRole:
-    Value: !GetAtt 'APIGWROLESTACK.Outputs.APIGWRole'
+    Value: !GetAtt 'CSDAPIGWROLESTACK.Outputs.APIGWRole'
     Description: Role Name
     Export:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "${AWS::StackName}-APIGWRole"
+        - - !Sub "CSD-${AWS::StackName}-APIGWRole"
           - Ref: Env
   APPSYNCRole:
-    Value: !GetAtt 'APPSYNCROLESTACK.Outputs.APPSYNCRole'
+    Value: !GetAtt 'CSDAPPSYNCROLESTACK.Outputs.APPSYNCRole'
     Description: Role Name
     Export: 
       Name: 
         Fn::Join:
         - "-"
-        - - !Sub "${AWS::StackName}-AppSyncRole"
+        - - !Sub "CSD-${AWS::StackName}-AppSyncRole"
           - Ref: Env
   CSDAMPLIFYRole:
     Value: !GetAtt 'CSDAMPLIFYROLESTACK.Outputs.CSDAMPLIFYRole'
@@ -273,168 +306,177 @@ Outputs:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "${AWS::StackName}-CsdAmplifyRole"
+        - - !Sub "CSD-${AWS::StackName}-CsdAmplifyRole"
           - Ref: Env
   ECSIAMRole:
-    Value: !GetAtt 'ECSROLESTACK.Outputs.ECSIAMRole'
+    Value: !GetAtt 'CSDECSROLESTACK.Outputs.ECSIAMRole'
     Description: Role Name
     Export:
       Name:
        Fn::Join:
         - "-"
-        - - !Sub "${AWS::StackName}-ECSRole"
+        - - !Sub "CSD-${AWS::StackName}-ECSRole"
           - Ref: Env
   KINESISFIREHOUSEIAMRole:
-    Value: !GetAtt 'KINESISFIREHOUSEROLESTACK.Outputs.KINESISFIREHOUSEIAMRole'
+    Value: !GetAtt 'CSDKINESISFIREHOUSEROLESTACK.Outputs.KINESISFIREHOUSEIAMRole'
     Description: Role Name
     Export:
       Name:
        Fn::Join:
         - "-"
-        - - !Sub "${AWS::StackName}-KinesisfirehouseRole"
+        - - !Sub "CSD-${AWS::StackName}-KinesisfirehouseRole"
           - Ref: Env
   VPCId:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.VPCId'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.VPCId'
     Description: VPCId of the newly created VPC
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-VPCId"
+          - - !Sub "CSD-${AWS::StackName}-VPCId"
             - Ref: Env
   SecurityGroup1:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.SecurityGroup1'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.SecurityGroup1'
     Description: SecurityGroup for Serverless subnet
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-ServerlessServerSecuritygroup"
+          - - !Sub "CSD-${AWS::StackName}-ServerlessServerSecuritygroup"
             - Ref: Env   
   SecurityGroup2:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.SecurityGroup2'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.SecurityGroup2'
     Description: SecurityGroup for CONTAINER Subnet
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-ContainerServerSecuritygroup"
+          - - !Sub "CSD-${AWS::StackName}-ContainerServerSecuritygroup"
             - Ref: Env
   SecurityGroup3:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.SecurityGroup3'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.SecurityGroup3'
     Description: SecurityGroup for PUBLIC subnet
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-WanServerSecurityGroup"
+          - - !Sub "CSD-${AWS::StackName}-WanServerSecurityGroup"
             - Ref: Env                      
   SecurityGroup4:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.SecurityGroup4'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.SecurityGroup4'
     Description: SecurityGroup for Db subnet
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-DbServerSecurityGroup"
+          - - !Sub "CSD-${AWS::StackName}-DbServerSecurityGroup"
             - Ref: Env 
   SecurityGroup5:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.SecurityGroup5'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.SecurityGroup5'
     Description: InternalSSHSecurityGroup
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-InternalSSHSecurityGroup"
+          - - !Sub "CSD-${AWS::StackName}-InternalSSHSecurityGroup"
             - Ref: Env  
   ServerlessSubnet1Id:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.ServerlessSubnet1Id'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.ServerlessSubnet1Id'
     Description: SubnetId of the Serverless subnet1
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-ServerlessSubnet1ID"
+          - - !Sub "CSD-${AWS::StackName}-ServerlessSubnet1ID"
             - Ref: Env   
   ServerlessSubnet2Id:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.ServerlessSubnet2Id'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.ServerlessSubnet2Id'
     Description: SubnetId of the Serverless subnet2
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-ServerlessSubnet2ID"
+          - - !Sub "CSD-${AWS::StackName}-ServerlessSubnet2ID"
             - Ref: Env    
   ContainerSubnet1Id:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.ContainerSubnet1Id'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.ContainerSubnet1Id'
     Description: SubnetId of the CONTAINER subnet1
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-CONTAINERSubnet1ID"
+          - - !Sub "CSD-${AWS::StackName}-CONTAINERSubnet1ID"
             - Ref: Env 
   ContainerSubnet2Id:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.ContainerSubnet2Id'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.ContainerSubnet2Id'
     Description: SubnetId of the CONTAINER subnet2
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-CONTAINERSubnet2ID"
+          - - !Sub "CSD-${AWS::StackName}-CONTAINERSubnet2ID"
             - Ref: Env   
   WanSubnet1Id:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.WanSubnet1Id'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.WanSubnet1Id'
     Description: SubnetId of the PUBLIC subnet1
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-WanSubnet1Id"
+          - - !Sub "CSD-${AWS::StackName}-WanSubnet1Id"
             - Ref: Env    
   WanSubnet2Id:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.WanSubnet2Id'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.WanSubnet2Id'
     Description: SubnetId of the PUBLIC subnet2
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-WanSubnet2Id"
+          - - !Sub "CSD-${AWS::StackName}-WanSubnet2Id"
             - Ref: Env  
   DbSubnet1Id:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.DbSubnet1Id'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.DbSubnet1Id'
     Description: SubnetId of the DB subnet1
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-DbSubnet1Id"
+          - - !Sub "CSD-${AWS::StackName}-DbSubnet1Id"
             - Ref: Env  
   DbSubnet2Id:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.DbSubnet2Id'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.DbSubnet2Id'
     Description: SubnetId of the DB subnet2
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-DbSubnet2Id"
+          - - !Sub "CSD-${AWS::StackName}-DbSubnet2Id"
             - Ref: Env 
   NATGW1ID:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.NATGW1ID'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.NATGW1ID'
     Description: NatGateway id of PUBLIC subnet1
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-NATGW1ID"
+          - - !Sub "CSD-${AWS::StackName}-NATGW1ID"
             - Ref: Env 
   NATGW2ID:
-    Value: !GetAtt 'NETWORKSTACK.Outputs.NATGW2ID'
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.NATGW2ID'
     Description: NatGateway id of PUBLIC subnet2
     Export:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "${AWS::StackName}-NATGW2ID"
-            - Ref: Env                           
+          - - !Sub "CSD-${AWS::StackName}-NATGW2ID"
+            - Ref: Env  
+  csddaxclustername:
+    Value: !GetAtt 'CSDDAXSTACK.Outputs.csddaxclustername'
+    Description: DAX Cluster  
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-csddaxclustername"
+          - Ref: Env                       
                                                                                       

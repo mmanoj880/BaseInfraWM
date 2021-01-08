@@ -1,0 +1,43 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create a DAX cluster
+Parameters:
+  Env:
+    Description: Environment Suffix
+    Type: String
+    Default: dev  
+Resources:
+  daxCluster:
+    Type: AWS::DAX::Cluster
+    Properties:
+      ClusterName: MyDAXCluster
+      NodeType: dax.t2.small
+      ReplicationFactor: 1
+      IAMRoleARN: arn:aws:iam::108970575545:role/CSD-DAX-ROLE
+      Description: DAX cluster created with CloudFormation
+      SecurityGroupIds:
+      - sg-0412c8a0a3893e1d6
+      SubnetGroupName:
+        Ref: subnetGroupClu
+  subnetGroupClu:
+    Type: AWS::DAX::SubnetGroup
+    Properties:
+      SubnetGroupName: daxSubnetGroup
+      Description: Subnet group for DAX cluster
+      SubnetIds:
+      - subnet-4fa9f771
+      - subnet-7d5e541a
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: DAX-SECURIT
+      SecurityGroupIngress:
+      - CidrIp: 0.0.0.0/0
+        FromPort: 8111
+        IpProtocol: tcp
+        ToPort: 8111
+Outputs:
+  csddaxclustername:
+    Description: DAX cluster created with cloudformation
+    Value:
+      Ref: daxCluster    
