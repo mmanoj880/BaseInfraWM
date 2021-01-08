@@ -5,9 +5,7 @@
    ])
 ])
 pipeline {
-    agent {
-  label 'cdk'
-}
+    agent any
     stages {
 	    stage ('Git Checkout') {
             steps {
