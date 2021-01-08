@@ -5,7 +5,11 @@
    ])
 ])
 pipeline {
-    agent any
+    agent {
+    	node {
+		label 'wp-build'
+	}
+    }
     stages {
 	    stage ('Git Checkout') {
             steps {
