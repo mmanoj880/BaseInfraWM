@@ -29,7 +29,7 @@
   },
   {
     "ParameterKey": "ServerlessSubnet1AZ1",
-    "ParameterValue": "us-east-1a"
+    "ParameterValue": "ap-south-1a"
   },
   {
     "ParameterKey": "ServerlessCidrBlock2",
@@ -37,7 +37,7 @@
   },
   {
     "ParameterKey": "ServerlessSubnet2AZ1",
-    "ParameterValue": "us-east-1b"
+    "ParameterValue": "ap-south-1b"
   },
   {
     "ParameterKey": "ContainerCidrBlock1",
@@ -45,7 +45,7 @@
   },
   {
     "ParameterKey": "ContainerSubnet1AZ1",
-    "ParameterValue": "us-east-1a"
+    "ParameterValue": "ap-south-1a"
   },
   {
     "ParameterKey": "ContainerCidrBlock2",
@@ -53,7 +53,7 @@
   },
   {
     "ParameterKey": "ContainerSubnet2AZ2",
-    "ParameterValue": "us-east-1b"
+    "ParameterValue": "ap-south-1b"
   },
   {
     "ParameterKey": "WanCidrBlock1",
@@ -61,7 +61,7 @@
   },
   {
     "ParameterKey": "WanSubnet1AZ1",
-    "ParameterValue": "us-east-1a"
+    "ParameterValue": "ap-south-1a"
   },
   {
     "ParameterKey": "WanCidrBlock2",
@@ -69,7 +69,7 @@
   },
   {
     "ParameterKey": "WanSubnet2AZ2",
-    "ParameterValue": "us-east-1b"
+    "ParameterValue": "ap-south-1b"
   },
   {
     "ParameterKey": "DbCidrBlock1",
@@ -77,7 +77,7 @@
   },
   {
     "ParameterKey": "DbSubnet1AZ1",
-    "ParameterValue": "us-east-1a"
+    "ParameterValue": "ap-south-1a"
   },
   {
     "ParameterKey": "DbCidrBlock2",
@@ -85,6 +85,6 @@
   },
   {
     "ParameterKey": "DbSubnet2AZ2",
-    "ParameterValue": "us-east-1b"
+    "ParameterValue": "ap-south-1b"
   }
 ]  
