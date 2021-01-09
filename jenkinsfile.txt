@@ -1,7 +1,8 @@
  properties([
   parameters([
     choice(name: 'DEPLOY_ENV', choices: ['testing','qa','dev','prod','qat'], description: 'The target environment' ),
-	choice(name: 'BRANCH', choices: ['development','master','main'], description: 'The target Branch' )
+	choice(name: 'BRANCH', choices: ['development','master','main'], description: 'The target Branch' ),
+	choice(name: 'REGION', choices: ['us-east-1','us-east-2'], description: 'The Target Region')
    ])
 ])
 pipeline {
