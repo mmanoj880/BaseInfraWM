@@ -2,7 +2,7 @@
   parameters([
     choice(name: 'DEPLOY_ENV', choices: ['testing','qa','dev','prod','qat'], description: 'The target environment' ),
 	choice(name: 'BRANCH', choices: ['development','master','main'], description: 'The target Branch' ),
-	choice(name: 'REGION', choices: ['us-east-1','us-east-2'], description: 'The Target Region')
+	choice(name: 'REGION', choices: ['us-east-1','us-east-2','us-west-1'], description: 'The Target Region')
    ])
 ])
 pipeline {
@@ -33,7 +33,7 @@ pipeline {
                         echo 'I  execute in testing'
 			sh 'aws s3 cp s3://vispolicytest/input.json /home/ec2-user/workspace/BaseInfraWM/Base-Infra/ParentStack'
 			sh 'aws s3 cp s3://vispolicytest/final.yaml /home/ec2-user/workspace/BaseInfraWM/Base-Infra/ParentStack'
-                        sh 'aws cloudformation create-stack --stack-name BaseConfStack${DEPLOY_ENV} --template-body file://home/ec2-user/workspace/BaseInfraWM/Base-Infra/ParentStack/final.yaml --parameters file://home/ec2-user/workspace/BaseInfraWM/Base-Infra/ParentStack/input.json --capabilities CAPABILITY_NAMED_IAM'
+                        sh 'aws cloudformation create-stack --stack-name BaseConfStack${DEPLOY_ENV} --template-body file://home/ec2-user/workspace/BaseInfraWM/Base-Infra/ParentStack/final.yaml --parameters file://home/ec2-user/workspace/BaseInfraWM/Base-Infra/ParentStack/input.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION}'
                         sh 'ls -ltr'
                     } else if (params.DEPLOY_ENV == 'qa') {
                         echo 'I execute in qa'
