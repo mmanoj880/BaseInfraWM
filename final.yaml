@@ -10,7 +10,7 @@ Parameters:
   DefWriteCap:
     Description: Write Capacity Units
     Type: String
-    Default: '3'
+    Default: '3'  
   Env:
     Description: Environment Suffix
     Type: String
@@ -33,67 +33,53 @@ Parameters:
     Description: The IP address range for Serverless Subnet 1
     Type: String
     Default: 10.160.160.0/23
-  ServerlessSubnet1AZ1:
-    Description: The AZ1 for Serverless Subnet 1
-    Type: AWS::EC2::AvailabilityZone::Name
-    Default: us-east-2a
+
   ServerlessCidrBlock2:
     Description: The IP address range for Serverless Subnet 2
     Type: String
     Default: 10.160.162.0/23
-  ServerlessSubnet2AZ1:
-    Description: The AZ2 for Serverless Subnet 2
-    Type: AWS::EC2::AvailabilityZone::Name
-    Default: us-east-2b
+
   ContainerCidrBlock1:
     Description: The IP address range for Container Subnet 1
     Type: String
     Default: 10.160.164.0/23
-  ContainerSubnet1AZ1:
-    Description: The AZ1 for Public Subnet 2
-    Type: AWS::EC2::AvailabilityZone::Name
-    Default: us-east-2a
+
   ContainerCidrBlock2:
     Description: The IP address range for Container Subnet 2
     Type: String
     Default: 10.160.166.0/23
-  ContainerSubnet2AZ2:
-    Description: The AZ2 for Container Subnet 2
-    Type: AWS::EC2::AvailabilityZone::Name
-    Default: us-east-2b
+
   WanCidrBlock1:
     Description: The IP address range for PUBLIC Subnet 1
     Type: String
     Default: 10.160.168.0/23
-  WanSubnet1AZ1:
-    Description: The AZ1 for PUBLIC Subnet 1
-    Type: AWS::EC2::AvailabilityZone::Name
-    Default: us-east-2a
+
   WanCidrBlock2:
     Description: The IP address range for PUBLIC Subnet 2
     Type: String
     Default: 10.160.170.0/23
-  WanSubnet2AZ2:
-    Description: The AZ2 for PUBLIC Subnet 2
-    Type: AWS::EC2::AvailabilityZone::Name
-    Default: us-east-2b
+
   DbCidrBlock1:
     Description: The IP address range for Db Subnet 1
     Type: String
     Default: 10.160.172.0/23
-  DbSubnet1AZ1:
-    Description: The AZ1 Db Subnet 1
-    Type: AWS::EC2::AvailabilityZone::Name
-    Default: us-east-2a
+
   DbCidrBlock2:
     Description: The IP address range for Db Subnet 2
     Type: String
     Default: 10.160.174.0/23
-  DbSubnet2AZ2:
-    Description: The AZ2 Db Subnet 2
-    Type: AWS::EC2::AvailabilityZone::Name
-    Default: us-east-2b
 
+  Subnet1:
+    Description: Subnet1 for DAX
+    Type: String 
+  Subnet2:
+    Description: Subnet2 for DAX
+    Type: String
+  daxsg:
+    Description: SG for dax
+    Type: String    
+
+ 
 Resources:
   CSDNETWORKSTACK:
     Type: AWS::CloudFormation::Stack
@@ -103,37 +89,33 @@ Resources:
         EnvironmentName: !Ref EnvironmentName
         CIDR: !Ref CIDR
         ServerlessCidrBlock1: !Ref ServerlessCidrBlock1
-        ServerlessSubnet1AZ1: !Ref ServerlessSubnet1AZ1
         ServerlessCidrBlock2: !Ref ServerlessCidrBlock2
-        ServerlessSubnet2AZ1: !Ref ServerlessSubnet2AZ1
         ContainerCidrBlock1: !Ref ContainerCidrBlock1
-        ContainerSubnet1AZ1: !Ref ContainerSubnet1AZ1
         ContainerCidrBlock2: !Ref ContainerCidrBlock2
-        ContainerSubnet2AZ2: !Ref ContainerSubnet2AZ2
         WanCidrBlock1: !Ref WanCidrBlock1
-        WanSubnet1AZ1: !Ref WanSubnet1AZ1
         WanCidrBlock2: !Ref WanCidrBlock2
-        WanSubnet2AZ2: !Ref WanSubnet2AZ2
         DbCidrBlock1: !Ref DbCidrBlock1
-        DbSubnet1AZ1: !Ref DbSubnet1AZ1
         DbCidrBlock2: !Ref DbCidrBlock2
-        DbSubnet2AZ2: !Ref DbSubnet2AZ2
         Env: !Ref Env
       Tags:
         - Key: "Name"
           Value: "Testing"  
-      TemplateURL: https://vispolicytest.s3.amazonaws.com/Network.yaml
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/newnetwork.yaml
       TimeoutInMinutes: '15'
   CSDDAXSTACK:
     Type: AWS::CloudFormation::Stack
     Properties:
       Parameters:
         Env: !Ref Env
+        Subnet1: !Ref Subnet1
+        Subnet2: !Ref Subnet2
+        daxsg: !Ref daxsg
       Tags:
         - Key: "Name"
           Value: "Testing"
       TemplateURL: https://vispolicytest.s3.amazonaws.com/dax.yaml
       TimeoutInMinutes: '10'
+    DependsOn: CSDNETWORKSTACK
   CSDDYNAMODBSTACK:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -216,7 +198,7 @@ Outputs:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "CSD-${AWS::StackName}-CsdDriver"
+        - - !Sub "CDA-${AWS::StackName}-CsdDriver"
           - Ref: Env
   EsbCustomerCommLookupTableName:
     Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.EsbCustomerCommLookupTableName'
@@ -225,7 +207,7 @@ Outputs:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "CSD-${AWS::StackName}-EsbCustomerCommLookup"
+        - - !Sub "CDA-${AWS::StackName}-EsbCustomerCommLookup"
           - Ref: Env
   CsdVehicleTableName:
     Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdVehicleTableName'
@@ -234,7 +216,7 @@ Outputs:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "CSD-${AWS::StackName}-CsdVehicle"
+        - - !Sub "CDA-${AWS::StackName}-CsdVehicle"
           - Ref: Env
   CsdSiteTableName:
     Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdSiteTableName'
@@ -243,7 +225,7 @@ Outputs:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "CSD-${AWS::StackName}-CsdSite"
+        - - !Sub "CDA-${AWS::StackName}-CsdSite"
           - Ref: Env
   CsdRouteTableName:
     Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdRouteTableName'
@@ -252,7 +234,7 @@ Outputs:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "CSD-${AWS::StackName}-CsdRoute"
+        - - !Sub "CDA-${AWS::StackName}-CsdRoute"
           - Ref: Env
   CsdLobTableName:
     Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdLobTableName'
@@ -261,7 +243,7 @@ Outputs:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "CSD-${AWS::StackName}-CsdLob"
+        - - !Sub "CDA-${AWS::StackName}-CsdLob"
           - Ref: Env
   CsdEmployeeTableName:
     Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdEmployeeTableName'
@@ -270,7 +252,7 @@ Outputs:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "CSD-${AWS::StackName}-CsdEmployee"
+        - - !Sub "CDA-${AWS::StackName}-CsdEmployee"
           - Ref: Env
   LambdaRoleName:
     Value: !GetAtt 'CSDLAMBDAROLESTACK.Outputs.LambdaRoleName'
@@ -288,7 +270,7 @@ Outputs:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "CSD-${AWS::StackName}-APIGWRole"
+        - - !Sub "CDA-${AWS::StackName}-APIGWRole"
           - Ref: Env
   APPSYNCRole:
     Value: !GetAtt 'CSDAPPSYNCROLESTACK.Outputs.APPSYNCRole'
@@ -297,7 +279,7 @@ Outputs:
       Name: 
         Fn::Join:
         - "-"
-        - - !Sub "CSD-${AWS::StackName}-AppSyncRole"
+        - - !Sub "CDA-${AWS::StackName}-AppSyncRole"
           - Ref: Env
   CSDAMPLIFYRole:
     Value: !GetAtt 'CSDAMPLIFYROLESTACK.Outputs.CSDAMPLIFYRole'
@@ -306,7 +288,7 @@ Outputs:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "CSD-${AWS::StackName}-CsdAmplifyRole"
+        - - !Sub "CDA-${AWS::StackName}-CsdAmplifyRole"
           - Ref: Env
   ECSIAMRole:
     Value: !GetAtt 'CSDECSROLESTACK.Outputs.ECSIAMRole'
@@ -324,7 +306,7 @@ Outputs:
       Name:
        Fn::Join:
         - "-"
-        - - !Sub "CSD-${AWS::StackName}-KinesisfirehouseRole"
+        - - !Sub "CDA-${AWS::StackName}-KinesisfirehouseRole"
           - Ref: Env
   VPCId:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.VPCId'
@@ -333,7 +315,7 @@ Outputs:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "CSD-${AWS::StackName}-VPCId"
+          - - !Sub "CDA-${AWS::StackName}-VPCId"
             - Ref: Env
   SecurityGroup1:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.SecurityGroup1'
@@ -342,7 +324,7 @@ Outputs:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "CSD-${AWS::StackName}-ServerlessServerSecuritygroup"
+          - - !Sub "CDA-${AWS::StackName}-ServerlessServerSecuritygroup"
             - Ref: Env   
   SecurityGroup2:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.SecurityGroup2'
@@ -351,7 +333,7 @@ Outputs:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "CSD-${AWS::StackName}-ContainerServerSecuritygroup"
+          - - !Sub "CDA-${AWS::StackName}-ContainerServerSecuritygroup"
             - Ref: Env
   SecurityGroup3:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.SecurityGroup3'
@@ -360,7 +342,7 @@ Outputs:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "CSD-${AWS::StackName}-WanServerSecurityGroup"
+          - - !Sub "CDA-${AWS::StackName}-WanServerSecurityGroup"
             - Ref: Env                      
   SecurityGroup4:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.SecurityGroup4'
@@ -369,7 +351,7 @@ Outputs:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "CSD-${AWS::StackName}-DbServerSecurityGroup"
+          - - !Sub "CDA-${AWS::StackName}-DbServerSecurityGroup"
             - Ref: Env 
   SecurityGroup5:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.SecurityGroup5'
@@ -378,7 +360,7 @@ Outputs:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "CSD-${AWS::StackName}-InternalSSHSecurityGroup"
+          - - !Sub "CDA-${AWS::StackName}-InternalSSHSecurityGroup"
             - Ref: Env  
   ServerlessSubnet1Id:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.ServerlessSubnet1Id'
@@ -387,7 +369,7 @@ Outputs:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "CSD-${AWS::StackName}-ServerlessSubnet1ID"
+          - - !Sub "CDA-${AWS::StackName}-ServerlessSubnet1ID"
             - Ref: Env   
   ServerlessSubnet2Id:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.ServerlessSubnet2Id'
@@ -396,7 +378,7 @@ Outputs:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "CSD-${AWS::StackName}-ServerlessSubnet2ID"
+          - - !Sub "CDA-${AWS::StackName}-ServerlessSubnet2ID"
             - Ref: Env    
   ContainerSubnet1Id:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.ContainerSubnet1Id'
@@ -405,7 +387,7 @@ Outputs:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "CSD-${AWS::StackName}-CONTAINERSubnet1ID"
+          - - !Sub "CDA-${AWS::StackName}-CONTAINERSubnet1ID"
             - Ref: Env 
   ContainerSubnet2Id:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.ContainerSubnet2Id'
@@ -414,7 +396,7 @@ Outputs:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "CSD-${AWS::StackName}-CONTAINERSubnet2ID"
+          - - !Sub "CDA-${AWS::StackName}-CONTAINERSubnet2ID"
             - Ref: Env   
   WanSubnet1Id:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.WanSubnet1Id'
@@ -423,7 +405,7 @@ Outputs:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "CSD-${AWS::StackName}-WanSubnet1Id"
+          - - !Sub "CDA-${AWS::StackName}-WanSubnet1Id"
             - Ref: Env    
   WanSubnet2Id:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.WanSubnet2Id'
@@ -432,7 +414,7 @@ Outputs:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "CSD-${AWS::StackName}-WanSubnet2Id"
+          - - !Sub "CDA-${AWS::StackName}-WanSubnet2Id"
             - Ref: Env  
   DbSubnet1Id:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.DbSubnet1Id'
@@ -441,7 +423,7 @@ Outputs:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "CSD-${AWS::StackName}-DbSubnet1Id"
+          - - !Sub "CDA-${AWS::StackName}-DbSubnet1Id"
             - Ref: Env  
   DbSubnet2Id:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.DbSubnet2Id'
@@ -450,7 +432,7 @@ Outputs:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "CSD-${AWS::StackName}-DbSubnet2Id"
+          - - !Sub "CDA-${AWS::StackName}-DbSubnet2Id"
             - Ref: Env 
   NATGW1ID:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.NATGW1ID'
@@ -468,7 +450,7 @@ Outputs:
       Name:
         Fn::Join:
           - "-"
-          - - !Sub "CSD-${AWS::StackName}-NATGW2ID"
+          - - !Sub "CDA-${AWS::StackName}-NATGW2ID"
             - Ref: Env  
   csddaxclustername:
     Value: !GetAtt 'CSDDAXSTACK.Outputs.csddaxclustername'
@@ -477,6 +459,5 @@ Outputs:
       Name:
         Fn::Join:
         - "-"
-        - - !Sub "CSD-${AWS::StackName}-csddaxclustername"
-          - Ref: Env                       
-                                                                                      
+        - - !Sub "CDA-${AWS::StackName}-csddaxclustername"
+          - Ref: Env    
