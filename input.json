@@ -9,7 +9,7 @@
   },
   {
     "ParameterKey": "Env",
-    "ParameterValue": "Stage"
+    "ParameterValue": "Dev"
   },
   {
     "ParameterKey": "ProjectName",
@@ -17,11 +17,11 @@
   },
   {
     "ParameterKey": "EnvironmentName",
-    "ParameterValue": "Staging"
+    "ParameterValue": "Development"
   },
   {
     "ParameterKey": "CIDR",
-    "ParameterValue": "10.160.160.0/20"
+    "ParameterValue": "10.160.160.0/18"
   },
   {
     "ParameterKey": "ServerlessCidrBlock1",
@@ -56,15 +56,11 @@
     "ParameterValue": "10.160.174.0/23"
   },
   {
-    "ParameterKey": "Subnet1",
-    "ParameterValue": "subnet-903fd2fb"
+    "ParameterKey": "DaxCidrBlock1",
+    "ParameterValue": "10.160.176.0/23"
   },
   {
-    "ParameterKey": "Subnet2",
-    "ParameterValue": "subnet-04e36148"
-  },
-  {
-    "ParameterKey": "daxsg",
-    "ParameterValue": "sg-01fca8bb3fe0f3ccb"
+    "ParameterKey": "DaxCidrBlock1",
+    "ParameterValue": "10.160.178.0/23"
   }
 ]  
