@@ -9,7 +9,7 @@
     },
     {
       "ParameterKey": "Env",
-      "ParameterValue": "testing"
+      "ParameterValue": "Staging"
     },
     {
       "ParameterKey": "ProjectName",
@@ -17,7 +17,7 @@
     },
     {
       "ParameterKey": "EnvironmentName",
-      "ParameterValue": "Development"
+      "ParameterValue": "Staging"
     },
     {
       "ParameterKey": "CIDR",
@@ -63,5 +63,4 @@
       "ParameterKey": "DaxCidrBlock1",
       "ParameterValue": "10.160.178.0/23"
     }
-  ]  
-  
+  ]
