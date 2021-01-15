@@ -9,7 +9,7 @@
     },
     {
       "ParameterKey": "Env",
-      "ParameterValue": "Staging"
+      "ParameterValue": "testng"
     },
     {
       "ParameterKey": "ProjectName",
