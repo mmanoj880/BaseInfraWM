@@ -9,7 +9,7 @@
     },
     {
       "ParameterKey": "Env",
-      "ParameterValue": "testng"
+      "ParameterValue": "Development"
     },
     {
       "ParameterKey": "ProjectName",
@@ -17,7 +17,7 @@
     },
     {
       "ParameterKey": "EnvironmentName",
-      "ParameterValue": "Staging"
+      "ParameterValue": "Development"
     },
     {
       "ParameterKey": "CIDR",
