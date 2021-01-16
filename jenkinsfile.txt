@@ -34,7 +34,7 @@ pipeline {
 			sh 'aws s3 cp s3://vispolicytest/input-${DEPLOY_ENV}.json /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
 			sh 'aws s3 cp s3://vispolicytest/solution.yaml /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
                         sh 'aws cloudformation create-stack --stack-name BaseConfStack${DEPLOY_ENV} --template-body file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/solution.yaml --parameters file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/input-${DEPLOY_ENV}.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION}'
-			sh 'aws cloudformation wait stack-create-complete --stack-name BaseConfStack${DEPLOY_ENV}'
+			sh 'aws cloudformation wait stack-create-complete --stack-name BaseConfStack${DEPLOY_ENV} --region ${REGION}'
                         sh 'ls -ltr'
                     } else if (params.DEPLOY_ENV == 'qa') {
                         echo 'I execute in qa'
