@@ -9,7 +9,7 @@
     },
     {
       "ParameterKey": "Env",
-      "ParameterValue": "Development"
+      "ParameterValue": "prod"
     },
     {
       "ParameterKey": "ProjectName",
@@ -17,7 +17,7 @@
     },
     {
       "ParameterKey": "EnvironmentName",
-      "ParameterValue": "Development"
+      "ParameterValue": "Production"
     },
     {
       "ParameterKey": "CIDR",
