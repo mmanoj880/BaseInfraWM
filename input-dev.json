@@ -1,0 +1,66 @@
+[
+    {
+      "ParameterKey": "DefReadCap",
+      "ParameterValue": "1"
+    },
+    {
+      "ParameterKey": "DefWriteCap",
+      "ParameterValue": "1"
+    },
+    {
+      "ParameterKey": "Env",
+      "ParameterValue": "dev"
+    },
+    {
+      "ParameterKey": "ProjectName",
+      "ParameterValue": "CSD"
+    },
+    {
+      "ParameterKey": "EnvironmentName",
+      "ParameterValue": "Production"
+    },
+    {
+      "ParameterKey": "CIDR",
+      "ParameterValue": "10.160.160.0/18"
+    },
+    {
+      "ParameterKey": "ServerlessCidrBlock1",
+      "ParameterValue": "10.160.160.0/23"
+    },
+    {
+      "ParameterKey": "ServerlessCidrBlock2",
+      "ParameterValue": "10.160.162.0/23"
+    },
+    {
+      "ParameterKey": "ContainerCidrBlock1",
+      "ParameterValue": "10.160.164.0/23"
+    },
+    {
+      "ParameterKey": "ContainerCidrBlock2",
+      "ParameterValue": "10.160.166.0/23"
+    },
+    {
+      "ParameterKey": "WanCidrBlock1",
+      "ParameterValue": "10.160.168.0/23"
+    },
+    {
+      "ParameterKey": "WanCidrBlock2",
+      "ParameterValue": "10.160.170.0/23"
+    },
+    {
+      "ParameterKey": "DbCidrBlock1",
+      "ParameterValue": "10.160.172.0/23"
+    },
+    {
+      "ParameterKey": "DbCidrBlock2",
+      "ParameterValue": "10.160.174.0/23"
+    },
+    {
+      "ParameterKey": "DaxCidrBlock1",
+      "ParameterValue": "10.160.176.0/23"
+    },
+    {
+      "ParameterKey": "DaxCidrBlock1",
+      "ParameterValue": "10.160.178.0/23"
+    }
+  ]
