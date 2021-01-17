@@ -1,0 +1,449 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Base Infrastructure'
+
+Parameters:
+  DefReadCap:
+    Description: Read Capacity Units
+    Type: String
+    Default: '1'
+  DefWriteCap:
+    Description: Write Capacity Units
+    Type: String
+    Default: '1'
+  Env:
+    Description: Environment Suffix
+    Type: String
+    Default: Dev
+  ProjectName:
+    Description: Enter the Project name
+    Type: String
+    Default: CSD
+  EnvironmentName:
+    Description: The Name of Environment
+    Type: String
+    AllowedValues:
+    - Development
+    - Staging
+    - Production
+  CIDR:
+    Description: The IP address range that you'll use for your VPC
+    Default: 10.160.160.0/18
+    Type: String
+  ServerlessCidrBlock1:
+    Description: The IP address range for Serverless Subnet 1
+    Type: String
+    Default: 10.160.160.0/23
+
+  ServerlessCidrBlock2:
+    Description: The IP address range for Serverless Subnet 2
+    Type: String
+    Default: 10.160.162.0/23
+
+  ContainerCidrBlock1:
+    Description: The IP address range for Container Subnet 1
+    Type: String
+    Default: 10.160.164.0/23
+
+  ContainerCidrBlock2:
+    Description: The IP address range for Container Subnet 2
+    Type: String
+    Default: 10.160.166.0/23
+
+  WanCidrBlock1:
+    Description: The IP address range for PUBLIC Subnet 1
+    Type: String
+    Default: 10.160.168.0/23
+
+  WanCidrBlock2:
+    Description: The IP address range for PUBLIC Subnet 2
+    Type: String
+    Default: 10.160.170.0/23
+
+  DbCidrBlock1:
+    Description: The IP address range for Db Subnet 1
+    Type: String
+    Default: 10.160.172.0/23
+
+  DbCidrBlock2:
+    Description: The IP address range for Db Subnet 2
+    Type: String
+    Default: 10.160.174.0/23
+
+  DaxCidrBlock1:
+    Description: The IP address range for Dax Subnet 1
+    Type: String
+    Default: 10.160.176.0/23
+
+  DaxCidrBlock2:
+    Description: The IP address range for Dax Subnet 1
+    Type: String
+    Default: 10.160.178.0/23    
+
+Resources:
+  CSDNETWORKSTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        ProjectName: !Ref ProjectName
+        EnvironmentName: !Ref EnvironmentName
+        CIDR: !Ref CIDR
+        ServerlessCidrBlock1: !Ref ServerlessCidrBlock1
+        ServerlessCidrBlock2: !Ref ServerlessCidrBlock2
+        ContainerCidrBlock1: !Ref ContainerCidrBlock1
+        ContainerCidrBlock2: !Ref ContainerCidrBlock2
+        WanCidrBlock1: !Ref WanCidrBlock1
+        WanCidrBlock2: !Ref WanCidrBlock2
+        DbCidrBlock1: !Ref DbCidrBlock1
+        DbCidrBlock2: !Ref DbCidrBlock2
+        Env: !Ref Env 
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/CSD-NETWORK.yml
+      TimeoutInMinutes: '15'
+  CSDDAXSTACK:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: CSDNETWORKSTACK
+    Properties:
+      Parameters:
+        Env: !Ref Env
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/CSD-DAX-CLUSTER.yml
+      TimeoutInMinutes: '15'
+  CSDDYNAMODBSTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        DefReadCap: !Ref DefReadCap
+        DefWriteCap: !Ref DefWriteCap
+        Env: !Ref Env      
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/CSD-DYNAMODB-TABLE.yml
+      TimeoutInMinutes: '5'
+  CSDLAMBDAROLESTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Env: !Ref Env    
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/CSD-DAX-LAMBDA-IAM-ROLE.yml
+      TimeoutInMinutes: '5'
+  CSDAPIGWROLESTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Env: !Ref Env     
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/CSD-APIGW-IAM-ROLE.yml
+      TimeoutInMinutes: '10'
+  CSDAPPSYNCROLESTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Env: !Ref Env
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/CSD-APPSYNC-IAM-ROLE.yml
+      TimeoutInMinutes: '5'
+  CSDAMPLIFYROLESTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Env: !Ref Env      
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/CSD-AMPLIFY-IAM-ROLE.yml
+      TimeoutInMinutes: '5'
+  CSDECSROLESTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Env: !Ref Env        
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/CSD-ECS-IAM-ROLE.yml
+      TimeoutInMinutes: '5'
+  CSDKINESISFIREHOUSEROLESTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Env: !Ref Env      
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/CSD-KINESISFIREHOUSE-IAM-ROLE.yml
+      TimeoutInMinutes: '5'  
+Outputs:
+  VpcId:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.VpcId'
+    Description: VPCId of the newly created VPC
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-VpcId"
+            - Ref: Env  
+  DaxSubnet1Id:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.DaxSubnet1Id'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-DaxSubnet1Id"
+            - Ref: Env   
+  DaxSubnet2Id:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.DaxSubnet2Id'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-DaxSubnet2Id"
+            - Ref: Env    
+  DbSubnet1Id:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.DbSubnet1Id'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-DbSubnet1Id"
+            - Ref: Env    
+  DbSubnet2Id:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.DbSubnet2Id'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-DbSubnet2Id"
+            - Ref: Env    
+  ContainerSubnet1Id:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.ContainerSubnet1Id'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-ContainerSubnet1Id"
+            - Ref: Env     
+  ContainerSubnet2Id:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.ContainerSubnet2Id'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-ContainerSubnet2Id"
+            - Ref: Env   
+  NATSubnet1Id:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.NATSubnet1Id'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-NATSubnet1Id"
+            - Ref: Env     
+  WanSubnet1Id:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.WanSubnet1Id'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-WanSubnet1Id"
+            - Ref: Env  
+  WanSubnet2Id:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.WanSubnet2Id'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-WanSubnet2Id"
+            - Ref: Env   
+  ServerlessSubnet1Id:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.ServerlessSubnet1Id'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-ServerlessSubnet1Id"
+            - Ref: Env  
+  ServerlessSubnet2Id:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.ServerlessSubnet2Id'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-ServerlessSubnet2Id"
+            - Ref: Env 
+  ServerlessSecurityGroup:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.ServerlessSecurityGroup'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-ServerlessSecurityGroup"
+            - Ref: Env   
+  ContainerSecurityGroup:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.ContainerSecurityGroup'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-ContainerSecurityGroup"
+            - Ref: Env       
+  WanSecurityGroup:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.WanSecurityGroup'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-WanSecurityGroup"
+            - Ref: Env   
+  DbSecurityGroup:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.DbSecurityGroup'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-DbSecurityGroup"
+            - Ref: Env 
+  SshSecurityGroup:
+    Value: !GetAtt 'CSDNETWORKSTACK.Outputs.SshSecurityGroup'
+    Description: SubnetId of the Dax subnet1
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-SshSecurityGroup"
+            - Ref: Env               
+  CsdDaxClusterName:
+    Value: !GetAtt 'CSDDAXSTACK.Outputs.CsdDaxClusterName'
+    Description: DAX Cluster  
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-CsdDaxClusterName"
+          - Ref: Env    
+  CsdDaxClusterSecurityGroup: 
+    Value: !GetAtt 'CSDDAXSTACK.Outputs.CsdDaxClusterSecurityGroup'
+    Description: DAX Cluster  
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-CsdDaxClusterSecurityGroup"
+          - Ref: Env    
+  CsdDriverTableName:
+    Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdDriverTableName'
+    Description: Table Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-CsdDriverTable"
+          - Ref: Env
+  EsbCustomerCommLookupTableName:
+    Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.EsbCustomerCommLookupTableName'
+    Description: Table Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-EsbCustomerCommLookupTable"
+          - Ref: Env
+  CsdVehicleTableName:
+    Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdVehicleTableName'
+    Description: Table Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-CsdVehicleTable"
+          - Ref: Env
+  CsdSiteTableName:
+    Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdSiteTableName'
+    Description: Table Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-CsdSiteTable"
+          - Ref: Env
+  CsdRouteTableName:
+    Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdRouteTableName'
+    Description: Table Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-CsdRouteTable"
+          - Ref: Env
+  CsdLobTableName:
+    Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdLobTableName'
+    Description: Table Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-CsdLob"
+          - Ref: Env
+  CsdEmployeeTableName:
+    Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdEmployeeTableName'
+    Description: Table Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-CsdEmployeeTable"
+          - Ref: Env
+  LambdaRoleName:
+    Value: !GetAtt 'CSDLAMBDAROLESTACK.Outputs.LambdaRoleName'
+    Description: Role Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-LambdaRole"
+          - Ref: Env
+  APIGWRole:
+    Value: !GetAtt 'CSDAPIGWROLESTACK.Outputs.APIGWRole'
+    Description: Role Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-APIGWRole"
+          - Ref: Env
+  APPSYNCRole:
+    Value: !GetAtt 'CSDAPPSYNCROLESTACK.Outputs.APPSYNCRole'
+    Description: Role Name
+    Export: 
+      Name: 
+        Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-AppSyncRole"
+          - Ref: Env
+  CSDAMPLIFYRole:
+    Value: !GetAtt 'CSDAMPLIFYROLESTACK.Outputs.CSDAMPLIFYRole'
+    Description: Role Name
+    Export:
+      Name:
+        Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-CsdAmplifyRole"
+          - Ref: Env
+  ECSIAMRole:
+    Value: !GetAtt 'CSDECSROLESTACK.Outputs.ECSIAMRole'
+    Description: Role Name
+    Export:
+      Name:
+       Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-ECSRole"
+          - Ref: Env
+  KINESISFIREHOUSEIAMRole:
+    Value: !GetAtt 'CSDKINESISFIREHOUSEROLESTACK.Outputs.KINESISFIREHOUSEIAMRole'
+    Description: Role Name
+    Export:
+      Name:
+       Fn::Join:
+        - "-"
+        - - !Sub "CSD-${AWS::StackName}-KinesisfirehouseRole"
+          - Ref: Env  

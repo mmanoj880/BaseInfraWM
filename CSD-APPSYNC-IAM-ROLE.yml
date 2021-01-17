@@ -1,0 +1,123 @@
+Description: 'This template will create Appsync Role'
+Parameters:
+  Env:
+    Description: Environment Suffix
+    Type: String
+    Default: dev
+Resources:
+  AppSyncRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Tags:
+      - Key: Name
+        Value: CSD-POC-APPSYNC-ROLE
+      - Key: Owner
+        Value: OCS
+      - Key: Application
+        Value: opsTool-POC 
+      - Key: Project
+        Value: CSD       
+      Path: /
+      RoleName: 
+        Fn::Join:
+        - "-"
+        - - CSD-APPSYNC-ROLE
+          - Ref: Env
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - appsync.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CSD-LAMBDA-POLICY
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                  - lambda:GetFunctionConfiguration
+                Resource: 
+                  - Fn::Join:
+                    - ":"
+                    -
+                      - 'arn:aws:lambda'
+                      - Ref: AWS::Region
+                      - Ref: AWS::AccountId
+                      - 'function:csd-*'
+        - PolicyName: CSD-S3-POLICY
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                   - s3:PutObject
+                   - s3:Get*
+                   - s3:List*
+                   - s3:Delete*
+                Resource: 
+                   - 'arn:aws:s3:::csd-*'   
+        - PolicyName: CSD-CLOUDWATCH-LOG-POLICY
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogStream
+                  - logs:GetLogEvents
+                  - logs:PutLogEvents
+                  - logs:TagLogGroup
+                Resource: 
+                  - Fn::Join:
+                    - ':'
+                    -
+                      - 'arn:aws:logs'
+                      - Ref: AWS::Region
+                      - Ref: AWS::AccountId
+                      - 'log-group:/aws/appsync/csd-*'
+        - PolicyName: CSD-APIGW-POLICY
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - apigateway:DELETE
+                  - apigateway:PUT
+                  - apigateway:POST
+                  - apigateway:GET
+                Resource: 
+                  - Fn::Join:
+                    - ':'
+                    -
+                      - 'arn:aws:apigateway'
+                      - Ref: AWS::Region
+                      - ':restapis/csd-*'
+        - PolicyName: CSD-DYNAMODB-POLICY
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:BatchWriteItem
+                  - dynamodb:GetItem
+                  - dynamodb:BatchGetItem
+                  - dynamodb:Query
+                Resource: 
+                  - Fn::Join:
+                    - ":"
+                    -
+                      - 'arn:aws:dynamodb'
+                      - Ref: AWS::Region
+                      - Ref: AWS::AccountId
+                      - 'table/csd-*'
+Outputs:
+  APPSYNCRole:
+    Description: Role Name
+    Value:
+      Ref: AppSyncRole

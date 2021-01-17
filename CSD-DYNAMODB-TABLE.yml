@@ -1,0 +1,309 @@
+---
+AWSTemplateFormatVersion: '2010-09-09'
+Description: This template will create DynaoDb Tables
+Parameters:
+  DefReadCap:
+    Description: Read Capacity Units
+    Type: String
+    Default: '1'
+  DefWriteCap:
+    Description: Write Capacity Units
+    Type: String
+    Default: '1'
+  Env:
+    Description: Environment Suffix
+    Type: String
+    Default: Dev
+Resources:
+  EsbCustomerCommLookup:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      Tags:
+      - Key: Name
+        Value: CSD-POC-ESBCUSTOMERCOMMLOOKUP-TABLE
+      - Key: Owner
+        Value: OCS
+      - Key: Application
+        Value: opsTool-POC 
+      - Key: Project
+        Value: CSD           
+      AttributeDefinitions:
+      - AttributeName: customerId
+        AttributeType: S
+      - AttributeName: expireBy
+        AttributeType: N
+      - AttributeName: orderId
+        AttributeType: S
+      - AttributeName: state
+        AttributeType: S
+      KeySchema:
+      - AttributeName: orderId
+        KeyType: HASH
+      - AttributeName: state
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: DefReadCap
+        WriteCapacityUnits:
+          Ref: DefWriteCap
+      TableName:
+        Fn::Join:
+        - "-"
+        - - esb-customer-comm-lookup
+          - Ref: Env
+      GlobalSecondaryIndexes:
+      - IndexName: sequence
+        KeySchema:
+        - AttributeName: orderId
+          KeyType: HASH
+        - AttributeName: customerId
+          KeyType: RANGE
+        Projection:
+          ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits:
+            Ref: DefReadCap
+          WriteCapacityUnits:
+            Ref: DefWriteCap
+      - IndexName: expireBy
+        KeySchema:
+        - AttributeName: expireBy
+          KeyType: HASH
+        Projection:
+          ProjectionType: ALL
+        ProvisionedThroughput:
+          ReadCapacityUnits:
+            Ref: DefReadCap
+          WriteCapacityUnits:
+            Ref: DefWriteCap
+  CsdVehicle:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      Tags:
+      - Key: Name
+        Value: CSD-POC-CSDVEHICLE-TABLE
+      - Key: Owner
+        Value: OCS
+      - Key: Application
+        Value: opsTool-POC 
+      - Key: Project
+        Value: CSD         
+      AttributeDefinitions:
+      - AttributeName: site_id
+        AttributeType: S
+      - AttributeName: vehicle_id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: site_id
+        KeyType: HASH
+      - AttributeName: vehicle_id
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: DefReadCap
+        WriteCapacityUnits:
+          Ref: DefWriteCap
+      TableName:
+        Fn::Join:
+        - "-"
+        - - csd-vehicle
+          - Ref: Env
+  CsdSite:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      Tags:
+      - Key: Name
+        Value: CSD-POC-CSDSITE-TABLE
+      - Key: Owner
+        Value: OCS
+      - Key: Application
+        Value: opsTool-POC 
+      - Key: Project
+        Value: CSD        
+      AttributeDefinitions:
+      - AttributeName: site_id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: site_id
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: DefReadCap
+        WriteCapacityUnits:
+          Ref: DefWriteCap
+      TableName:
+        Fn::Join:
+        - "-"
+        - - csd-site
+          - Ref: Env
+  CsdRoute:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      Tags:
+      - Key: Name
+        Value: CSD-POC-CSDROUTE-TABLE
+      - Key: Owner
+        Value: OCS
+      - Key: Application
+        Value: opsTool-POC 
+      - Key: Project
+        Value: CSD        
+      AttributeDefinitions:
+      - AttributeName: route_id
+        AttributeType: S
+      - AttributeName: site_id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: site_id
+        KeyType: HASH
+      - AttributeName: route_id
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: DefReadCap
+        WriteCapacityUnits:
+          Ref: DefWriteCap
+      TableName:
+        Fn::Join:
+        - "-"
+        - - csd-route
+          - Ref: Env
+  CsdLob:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      Tags:
+      - Key: Name
+        Value: CSD-POC-CSDLOB-TABLE
+      - Key: Owner
+        Value: OCS
+      - Key: Application
+        Value: opsTool-POC 
+      - Key: Project
+        Value: CSD        
+      AttributeDefinitions:
+      - AttributeName: lob_id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: lob_id
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: DefReadCap
+        WriteCapacityUnits:
+          Ref: DefWriteCap
+      TableName:
+        Fn::Join:
+        - "-"
+        - - csd-lob
+          - Ref: Env
+  CsdEmployee:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      Tags:
+      - Key: Name
+        Value: CSD-POC-CSDEMPLOYEE-TABLE
+      - Key: Owner
+        Value: OCS
+      - Key: Application
+        Value: opsTool-POC 
+      - Key: Project
+        Value: CSD        
+      AttributeDefinitions:
+      - AttributeName: user_id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: user_id
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: DefReadCap
+        WriteCapacityUnits:
+          Ref: DefWriteCap
+      TableName:
+        Fn::Join:
+        - "-"
+        - - csd-employee
+          - Ref: Env
+  CsdDriver:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      Tags:
+      - Key: Name
+        Value: CSD-POC-CSDDRIVER-TABLE
+      - Key: Owner
+        Value: OCS
+      - Key: Application
+        Value: opsTool-POC 
+      - Key: Project
+        Value: CSD        
+      AttributeDefinitions:
+      - AttributeName: driver_id
+        AttributeType: S
+      - AttributeName: site_id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: site_id
+        KeyType: HASH
+      - AttributeName: driver_id
+        KeyType: RANGE
+      ProvisionedThroughput:
+        ReadCapacityUnits:
+          Ref: DefReadCap
+        WriteCapacityUnits:
+          Ref: DefWriteCap
+      TableName:
+        Fn::Join:
+        - "-"
+        - - csd-driver
+          - Ref: Env
+Outputs:
+  CsdDriverTableName:
+    Description: Table name
+    Value:
+      Ref: CsdDriver
+    Export:
+      Name:
+        Fn::Sub: "CsdDynamoDb-CsdDriver"
+  EsbCustomerCommLookupTableName:
+    Description: Table name
+    Value:
+      Ref: EsbCustomerCommLookup
+    Export:
+      Name:
+        Fn::Sub: "CsdDynamoDb-EsbCustomerCommLookupTableName"
+  CsdVehicleTableName:
+    Description: Table name
+    Value:
+      Ref: CsdVehicle
+    Export:
+      Name:
+        Fn::Sub: "CsdDynamoDb-CsdVehicleTableName"
+  CsdSiteTableName:
+    Description: Table name
+    Value:
+      Ref: CsdSite
+    Export:
+      Name:
+        Fn::Sub: "CsdDynamoDb-CsdSiteTableName"
+  CsdRouteTableName:
+    Description: Table name
+    Value:
+      Ref: CsdRoute
+    Export:
+      Name:
+        Fn::Sub: "CsdDynamoDb-CsdRouteTableName"   
+  CsdLobTableName:
+    Description: Table name
+    Value:
+      Ref: CsdLob
+    Export:
+      Name:
+        Fn::Sub: "CsdDynamoDb-CsdLobTableName" 
+  CsdEmployeeTableName:
+    Description: Table name
+    Value:
+      Ref: CsdEmployee
+    Export:
+      Name:
+        Fn::Sub: "CsdDynamoDb-CsdEmployeeTableName" 
+
