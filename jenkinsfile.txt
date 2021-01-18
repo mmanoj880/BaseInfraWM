@@ -4,6 +4,7 @@
 	choice(name: 'BRANCH', choices: ['development','master','main'], description: 'The target Branch' ),
 	choice(name: 'REGION', choices: ['us-east-1','us-east-2','us-west-1'], description: 'The Target Region'),
 	choice(name: 'ACTION', choices: ['create-stack','update-stack'], description: 'To create and update the cloudformation stack')
+	choice(name: 'WAIT', choices: ['stack-create-complete','stack-update-complete'], description: 'To wait until the stack created or updated')
    ])
 ])
 pipeline {
