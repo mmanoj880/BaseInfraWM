@@ -3,7 +3,7 @@
     choice(name: 'DEPLOY_ENV', choices: ['testing','qa','dev','prod','qat'], description: 'The target environment' ),
 	choice(name: 'BRANCH', choices: ['development','master','main'], description: 'The target Branch' ),
 	choice(name: 'REGION', choices: ['us-east-1','us-east-2','us-west-1'], description: 'The Target Region'),
-	choice(name: 'ACTION', choices: ['create-stack','update-stack'], description: 'To create and update the cloudformation stack')
+	choice(name: 'ACTION', choices: ['create-stack','update-stack'], description: 'To create and update the cloudformation stack'),
 	choice(name: 'WAIT', choices: ['stack-create-complete','stack-update-complete'], description: 'To wait until the stack created or updated')
    ])
 ])
@@ -52,7 +52,7 @@ pipeline {
 			sh 'aws s3 cp s3://vispolicytest/input-${DEPLOY_ENV}.json /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
 			sh 'aws s3 cp s3://vispolicytest/CSD-PARENT.yml /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
                         sh 'aws cloudformation $ACTION --stack-name BaseInfra --template-body file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/CSD-PARENT.yml --parameters file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/input-${DEPLOY_ENV}.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION} --notification-arns arn:aws:sns:us-east-2:108970575545:CloudformationStatus'
-			sh 'aws cloudformation wait stack-create-complete --stack-name BaseConfStack${DEPLOY_ENV} --region ${REGION}'
+			sh 'aws cloudformation wait $WAIT --stack-name BaseInfra --region ${REGION}'
                         sh 'ls -ltr'
                     } else {
                         echo 'Invalid environment'
