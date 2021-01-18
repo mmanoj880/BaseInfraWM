@@ -32,15 +32,15 @@ pipeline {
                     if (params.DEPLOY_ENV == 'testing') {
                         echo 'I  execute in testing'
 			sh 'aws s3 cp s3://vispolicytest/input-${DEPLOY_ENV}.json /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
-			sh 'aws s3 cp s3://vispolicytest/CSD-PARENT.yaml /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
-                        sh 'aws cloudformation create-stack --stack-name BaseConfStack${DEPLOY_ENV} --template-body file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/CSD-PARENT.yaml --parameters file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/input-${DEPLOY_ENV}.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION} --notification-arns arn:aws:sns:us-east-1:108970575545:CloudformationStatus'
+			sh 'aws s3 cp s3://vispolicytest/CSD-PARENT.yml /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
+                        sh 'aws cloudformation create-stack --stack-name BaseConfStack${DEPLOY_ENV} --template-body file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/CSD-PARENT.yml --parameters file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/input-${DEPLOY_ENV}.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION} --notification-arns arn:aws:sns:us-east-1:108970575545:CloudformationStatus'
 			sh 'aws cloudformation wait stack-create-complete --stack-name BaseConfigStack${DEPLOY_ENV} --region ${REGION}'
                         sh 'ls -ltr'
                     } else if (params.DEPLOY_ENV == 'qat') {
                         echo 'I execute in qa'
 			sh 'aws s3 cp s3://vispolicytest/input-${DEPLOY_ENV}.json /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
-			sh 'aws s3 cp s3://vispolicytest/CSD-PARENT.yaml /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
-                        sh 'aws cloudformation create-stack --stack-name BaseConfStack${DEPLOY_ENV} --template-body file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/CSD-PARENT.yaml --parameters file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/input-${DEPLOY_ENV}.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION} --notification-arns arn:aws:sns:us-east-1:108970575545:CloudformationStatus'
+			sh 'aws s3 cp s3://vispolicytest/CSD-PARENT.yml /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
+                        sh 'aws cloudformation create-stack --stack-name BaseConfStack${DEPLOY_ENV} --template-body file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/CSD-PARENT.yml --parameters file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/input-${DEPLOY_ENV}.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION} --notification-arns arn:aws:sns:us-east-1:108970575545:CloudformationStatus'
 			sh 'aws cloudformation wait stack-create-complete --stack-name BaseConfigStack${DEPLOY_ENV} --region ${REGION}'
                         sh 'ls -ltr'
                     } else if (params.DEPLOY_ENV == 'dev') {
@@ -48,8 +48,8 @@ pipeline {
                     } else if (params.DEPLOY_ENV == 'prod' ) {
                         echo 'I execute in prod'
 			sh 'aws s3 cp s3://vispolicytest/input-${DEPLOY_ENV}.json /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
-			sh 'aws s3 cp s3://vispolicytest/CSD-PARENT.yaml /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
-                        sh 'aws cloudformation create-stack --stack-name BaseConfStack${DEPLOY_ENV} --template-body file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/CSD-PARENT.yaml --parameters file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/input-${DEPLOY_ENV}.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION} --notification-arns arn:aws:sns:us-east-1:108970575545:CloudformationStatus'
+			sh 'aws s3 cp s3://vispolicytest/CSD-PARENT.yml /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
+                        sh 'aws cloudformation create-stack --stack-name BaseConfStack${DEPLOY_ENV} --template-body file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/CSD-PARENT.yml --parameters file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/input-${DEPLOY_ENV}.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION} --notification-arns arn:aws:sns:us-east-1:108970575545:CloudformationStatus'
 			sh 'aws cloudformation wait stack-create-complete --stack-name BaseConfStack${DEPLOY_ENV} --region ${REGION}'
                         sh 'ls -ltr'
                     } else {
