@@ -51,16 +51,17 @@ pipeline {
                         echo 'I execute in prod'
 			sh 'aws s3 cp s3://vispolicytest/input-${DEPLOY_ENV}.json /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
 			sh 'aws s3 cp s3://vispolicytest/CSD-PARENT.yml /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
-                        if (sh 'aws cloudformation wait stack-exists --stack-name BaseInfra --region us-east-2')  {
-                            echo "Updating the existing stack"
-                            sh 'aws cloudformation update-stack --stack-name BaseInfra --template-body file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/CSD-PARENT.yml --parameters file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/input-${DEPLOY_ENV}.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION} --notification-arns arn:aws:sns:us-east-2:108970575545:CloudformationStatus'
-                            sh 'aws cloudformation wait stack-update-complete --stack-name BaseInfra --region ${REGION}'
-                        }
-                        else {
-                            echo " Creating a new stack"
-                            sh 'aws cloudformation create-stack --stack-name BaseInfra --template-body file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/CSD-PARENT.yml --parameters file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/input-${DEPLOY_ENV}.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION} --notification-arns arn:aws:sns:us-east-2:108970575545:CloudformationStatus'
-                            sh 'aws cloudformation wait stack-create-complete --stack-name BaseInfra --region ${REGION}'
-                        }
+                        sh 'if 'aws cloudformation wait stack-exists --stack-name BaseInfra --region us-east-2''
+			sh 'then'
+                        	sh echo "Updating the existing stack"
+                            	sh 'aws cloudformation update-stack --stack-name BaseInfra --template-body file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/CSD-PARENT.yml --parameters file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/input-${DEPLOY_ENV}.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION} --notification-arns arn:aws:sns:us-east-2:108970575545:CloudformationStatus'
+                            	sh 'aws cloudformation wait stack-update-complete --stack-name BaseInfra --region ${REGION}'
+                       
+                        sh 'else' 
+				sh echo "Creating a new stack"
+                            	sh 'aws cloudformation create-stack --stack-name BaseInfra --template-body file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/CSD-PARENT.yml --parameters file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/input-${DEPLOY_ENV}.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION} --notification-arns arn:aws:sns:us-east-2:108970575545:CloudformationStatus'
+                            	sh 'aws cloudformation wait stack-create-complete --stack-name BaseInfra --region ${REGION}'
+                        sh 'fi'
             sh 'ls -ltr'
                     } else {
                         echo 'Invalid environment'
