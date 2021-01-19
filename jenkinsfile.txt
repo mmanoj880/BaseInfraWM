@@ -53,9 +53,8 @@ pipeline {
 			sh 'aws s3 cp s3://vispolicytest/CSD-PARENT.yml /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
                         sh 'aws s3 cp s3://vispolicytest/stackexist.sh /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
 			sh 'chmod a+x /home/ec2-user/workspace/BaseInfraWM/Base-Infra/stackexist.sh'
-			sh 'cd /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
-			sh 'stackexist.sh'
-            sh 'ls -ltr'
+			sh '/home/ec2-user/workspace/BaseInfraWM/Base-Infra/stackexist.sh'
+            		sh 'ls -ltr'
                     } else {
                         echo 'Invalid environment'
                         currentBuild.result = 'FAILURE'
