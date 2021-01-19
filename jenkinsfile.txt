@@ -54,8 +54,6 @@ pipeline {
                         sh 'aws s3 cp s3://vispolicytest/stackexist.sh /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
 			sh 'chmod a+x /home/ec2-user/workspace/BaseInfraWM/Base-Infra/stackexist.sh'
 			sh 'cd /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
-			sh 'pwd'
-			sh 'chmod a+x /home/ec2-user/workspace/BaseInfraTest/stackexist.sh'
 			sh './stackexist.sh'
             		sh 'ls -ltr'
                     } else {
