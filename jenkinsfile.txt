@@ -51,7 +51,7 @@ pipeline {
                         echo 'I execute in prod'
 			sh 'aws s3 cp s3://vispolicytest/input-${DEPLOY_ENV}.json /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
 			sh 'aws s3 cp s3://vispolicytest/CSD-PARENT.yml /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
-                        sh 'aws cloudformation $ACTION --stack-name BaseInfra --template-body file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/CSD-PARENT.yml --parameters file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/input-${DEPLOY_ENV}.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION} 
+                        sh 'aws cloudformation $ACTION --stack-name BaseInfra --template-body file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/CSD-PARENT.yml --parameters file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/input-${DEPLOY_ENV}.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION}'
 			sh 'aws cloudformation wait $WAIT --stack-name BaseInfra --region ${REGION}'
                         sh 'ls -ltr'
                     } else {
