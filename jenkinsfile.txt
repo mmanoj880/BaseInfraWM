@@ -51,10 +51,10 @@ pipeline {
                         echo 'I execute in prod'
 			sh 'aws s3 cp s3://vispolicytest/input-${DEPLOY_ENV}.json /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
 			sh 'aws s3 cp s3://vispolicytest/CSD-PARENT.yml /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
-                        sh 'aws s3 cp s3://vispolicytest/stackexist.sh /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
-			sh 'chmod a+x /home/ec2-user/workspace/BaseInfraWM/Base-Infra/stackexist.sh'
+                        sh 'aws s3 cp s3://vispolicytest/check.sh /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
+			sh 'chmod a+x /home/ec2-user/workspace/BaseInfraWM/Base-Infra/check.sh'
 			sh 'cd /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
-			sh './home/ec2-user/workspace/BaseInfraWM/Base-Infra/stackexist.sh'
+			sh './home/ec2-user/workspace/BaseInfraWM/Base-Infra/check.sh'
             		sh 'ls -ltr'
                     } else {
                         echo 'Invalid environment'
