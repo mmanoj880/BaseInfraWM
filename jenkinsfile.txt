@@ -55,7 +55,7 @@ pipeline {
 			sh 'chmod a+x /home/ec2-user/workspace/BaseInfraWM/Base-Infra/stackexist.sh'
 			sh 'cd /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
 			sh 'chmod a+x stackexist.sh'
-			sh './stackexist.sh'
+			sh './home/ec2-user/workspace/BaseInfraWM/Base-Infra/stackexist.sh'
             		sh 'ls -ltr'
                     } else {
                         echo 'Invalid environment'
