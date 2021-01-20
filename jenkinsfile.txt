@@ -10,7 +10,7 @@ properties([
 pipeline {
     agent {
     	node {
-		label 'master'
+		label 'wp-build'
 	}
     }
     stages {
