@@ -54,7 +54,7 @@ pipeline {
                         sh 'aws s3 cp s3://vispolicytest/check.sh /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
 			sh 'chmod a+x /home/ec2-user/workspace/BaseInfraWM/Base-Infra/check.sh'
 			sh 'cd /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
-			sh './home/ec2-user/workspace/BaseInfraWM/Base-Infra/check.sh'
+			sh './check.sh'
             		sh 'ls -ltr'
                     } else {
                         echo 'Invalid environment'
