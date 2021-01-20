@@ -42,9 +42,12 @@ pipeline {
                         echo 'I execute in qa'
 			sh 'aws s3 cp s3://vispolicytest/input-${DEPLOY_ENV}.json /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
 			sh 'aws s3 cp s3://vispolicytest/CSD-PARENT.yml /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
-            sh 'aws cloudformation $ACTION --stack-name BaseConfStack${DEPLOY_ENV} --template-body file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/CSD-PARENT.yml --parameters file:///home/ec2-user/workspace/BaseInfraWM/Base-Infra/input-${DEPLOY_ENV}.json --capabilities CAPABILITY_NAMED_IAM --region ${REGION} --notification-arns arn:aws:sns:us-east-2:108970575545:CloudformationStatus'
-			sh 'aws cloudformation wait stack-create-complete --stack-name BaseConfigStack${DEPLOY_ENV} --region ${REGION}'
-                        sh 'ls -ltr'
+                        sh 'aws s3 cp s3://vispolicytest/stackexist.sh /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
+			sh 'chmod a+x /home/ec2-user/workspace/BaseInfraWM/Base-Infra/stackexist.sh'
+			sh 'cd /home/ec2-user/workspace/BaseInfraWM/Base-Infra/'
+			sh 'chmod a+x stackexist.sh'
+			sh 'bash /home/ec2-user/workspace/BaseInfraWM/Base-Infra/stackexist.sh'
+            		sh 'ls -ltr'
                     } else if (params.DEPLOY_ENV == 'dev') {
                         echo 'I execute in dev'
                     } else if (params.DEPLOY_ENV == 'prod' ) {
