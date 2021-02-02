@@ -15,17 +15,13 @@ Parameters:
     Description: Environment Suffix
     Type: String
     Default: Dev
+  StackName:
+    Description: Name of the root stack
+    Type: String
   ProjectName:
     Description: Enter the Project name
     Type: String
     Default: CSD
-  EnvironmentName:
-    Description: The Name of Environment
-    Type: String
-    AllowedValues:
-    - Development
-    - Staging
-    - Production
   CIDR:
     Description: The IP address range that you'll use for your VPC
     Default: 10.160.160.0/18
@@ -81,12 +77,21 @@ Parameters:
     Default: 10.160.178.0/23    
 
 Resources:
+  CSDSSMPARAMETERSTACK:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: CSDNETWORKSTACK
+    Properties:
+      Parameters:
+        Env: !Ref Env
+        StackName: !Ref StackName
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/CSD-SSM-PARAMETERS.yml
+      TimeoutInMinutes: '10'
   CSDNETWORKSTACK:
     Type: AWS::CloudFormation::Stack
+    DependsOn: CSDLAMBDAROLESTACK
     Properties:
       Parameters:
         ProjectName: !Ref ProjectName
-        EnvironmentName: !Ref EnvironmentName
         CIDR: !Ref CIDR
         ServerlessCidrBlock1: !Ref ServerlessCidrBlock1
         ServerlessCidrBlock2: !Ref ServerlessCidrBlock2
@@ -106,7 +111,7 @@ Resources:
       Parameters:
         Env: !Ref Env
       TemplateURL: https://vispolicytest.s3.amazonaws.com/CSD-DAX-CLUSTER.yml
-      TimeoutInMinutes: '15'
+      TimeoutInMinutes: '15'  
   CSDDYNAMODBSTACK:
     Type: AWS::CloudFormation::Stack
     Properties:
@@ -158,7 +163,23 @@ Resources:
         Env: !Ref Env      
       TemplateURL: https://vispolicytest.s3.amazonaws.com/CSD-KINESISFIREHOUSE-IAM-ROLE.yml
       TimeoutInMinutes: '5'  
+  CSDSNSSTACK:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      Parameters:
+        Env: !Ref Env
+      TemplateURL: https://vispolicytest.s3.amazonaws.com/CSD-SNS.yml
+      TimeoutInMinutes: '5'
 Outputs:
+  TopicName: 
+    Value: !GetAtt 'CSDSNSSTACK.Outputs.TopicName'
+    Description: Topic of the Sns
+    Export:
+      Name:
+        Fn::Join:
+          - "-"
+          - - !Sub "CSD-${AWS::StackName}-TopicName"
+            - Ref: Env 
   VpcId:
     Value: !GetAtt 'CSDNETWORKSTACK.Outputs.VpcId'
     Description: VPCId of the newly created VPC
@@ -338,15 +359,6 @@ Outputs:
         Fn::Join:
         - "-"
         - - !Sub "CSD-${AWS::StackName}-CsdDriverTable"
-          - Ref: Env
-  EsbCustomerCommLookupTableName:
-    Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.EsbCustomerCommLookupTableName'
-    Description: Table Name
-    Export:
-      Name:
-        Fn::Join:
-        - "-"
-        - - !Sub "CSD-${AWS::StackName}-EsbCustomerCommLookupTable"
           - Ref: Env
   CsdVehicleTableName:
     Value: !GetAtt 'CSDDYNAMODBSTACK.Outputs.CsdVehicleTableName'
