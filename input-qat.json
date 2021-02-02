@@ -9,15 +9,15 @@
     },
     {
       "ParameterKey": "Env",
-      "ParameterValue": "qat"
+      "ParameterValue": "Monkey"
+    },
+    {
+      "ParameterKey": "StackName",
+      "ParameterValue": "BaseInfraStack"
     },
     {
       "ParameterKey": "ProjectName",
-      "ParameterValue": "Testing"
-    },
-    {
-      "ParameterKey": "EnvironmentName",
-      "ParameterValue": "Development"
+      "ParameterValue": "CSD"
     },
     {
       "ParameterKey": "CIDR",
